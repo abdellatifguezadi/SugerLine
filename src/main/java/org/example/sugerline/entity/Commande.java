@@ -19,7 +19,6 @@ public class Commande {
     private LocalDateTime date;
     
     private String source;
-    private String type;
     private String statut;
     
     @ManyToOne
