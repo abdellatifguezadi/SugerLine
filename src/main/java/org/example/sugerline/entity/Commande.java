@@ -30,4 +30,9 @@ public class Commande {
     
     @OneToOne(mappedBy = "commande", cascade = CascadeType.ALL)
     private Paiement paiement;
+
+    private Double montantAvantReduction;
+    private Double pourcentageReduction;
+    private Double montantReduction;
+    private Double total;
 }

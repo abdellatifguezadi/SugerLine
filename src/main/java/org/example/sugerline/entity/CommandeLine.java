@@ -23,4 +23,6 @@ public class CommandeLine {
     @ManyToOne
     @JoinColumn(name = "produit_id")
     private Produit produit;
+
+    private Double Total;
 }
