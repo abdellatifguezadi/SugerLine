@@ -25,6 +25,5 @@ public class Produit {
     @OneToMany(mappedBy = "produit", cascade = CascadeType.ALL)
     private List<CommandeLine> commandeLines;
     
-    @OneToMany(mappedBy = "produit", cascade = CascadeType.ALL)
-    private List<Tarif> tarifs;
+
 }
