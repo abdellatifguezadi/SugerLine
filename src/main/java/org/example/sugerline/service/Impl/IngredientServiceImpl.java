@@ -3,6 +3,7 @@ package org.example.sugerline.service.Impl;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.example.sugerline.dto.request.IngredientRequestDTO;
+import org.example.sugerline.dto.request.IngredientUpdateDto;
 import org.example.sugerline.dto.response.IngredientResponseDTO;
 import org.example.sugerline.entity.Ingredient;
 import org.example.sugerline.mapper.IngredientMapper;
@@ -33,8 +34,13 @@ public class IngredientServiceImpl implements IngredientService {
     }
 
     @Override
-    public IngredientResponseDTO updateIngredient(Long id, IngredientRequestDTO ingredientRequestDTO) {
-        return null;
+    public IngredientResponseDTO updateIngredient(Long id, IngredientUpdateDto ingredientUpdateDto) {
+
+        Ingredient ingredint = ingredientRepository.findById(id)
+                .orElseThrow(()-> new RuntimeException("Ingredient not found with id: " + id));
+
+        ingredientMapper.updateEntityFromDTO(ingredientUpdateDto,ingredint);
+        return ingredientMapper.toResponseDTO(ingredientRepository.save(ingredint));
     }
 
     @Override
