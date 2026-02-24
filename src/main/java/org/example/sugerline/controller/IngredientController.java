@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/ingredients")
 @RequiredArgsConstructor
@@ -28,5 +30,17 @@ public class IngredientController {
     public ResponseEntity<IngredientResponseDTO> updateIngredient(@PathVariable Long id, @Valid @RequestBody IngredientUpdateDto ingredientUpdateDto){
         IngredientResponseDTO updatedIngredient = ingredientService.updateIngredient(id , ingredientUpdateDto);
         return ResponseEntity.ok(updatedIngredient);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<IngredientResponseDTO>> getAllIngredients() {
+        List<IngredientResponseDTO> ingredients = ingredientService.getAllIngredients();
+        return ResponseEntity.ok(ingredients);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<IngredientResponseDTO> getIngredientById(@PathVariable Long id) {
+        IngredientResponseDTO ingredient = ingredientService.getIngredientById(id);
+        return ResponseEntity.ok(ingredient);
     }
 }
