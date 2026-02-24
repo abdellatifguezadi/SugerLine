@@ -9,7 +9,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class IngredientResponseDTO {
     private Long id;
+    private String type;
     private String nom;
-    private Boolean disponibilite;
+    private String quantite;
+    private String unite;
+    private Double prixUnitaire;
+
 }
 

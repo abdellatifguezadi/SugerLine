@@ -14,9 +14,13 @@ public class Ingredient {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
+    private String type;
     private String nom;
-    private Boolean disponibilite;
+    private String quantite;
+    private String unite;
+    private Double prixUnitaire;
+
     
     @OneToMany(mappedBy = "ingredient", cascade = CascadeType.ALL)
     private List<IngredientProduit> ingredientProduits;
