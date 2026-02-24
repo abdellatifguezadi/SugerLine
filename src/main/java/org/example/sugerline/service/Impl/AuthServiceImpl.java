@@ -1,4 +1,4 @@
-package org.example.sugerline.service;
+package org.example.sugerline.service.Impl;
 
 import lombok.RequiredArgsConstructor;
 import org.example.sugerline.dto.request.LoginRequestDTO;
@@ -8,6 +8,7 @@ import org.example.sugerline.entity.Utilisateur;
 import org.example.sugerline.mapper.UtilisateurMapper;
 import org.example.sugerline.repository.UtilisateurRepository;
 import org.example.sugerline.security.JwtUtil;
+import org.example.sugerline.service.IAuthService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
