@@ -19,11 +19,11 @@ public class Produit {
     private Double prixProduction;
     private Double prixVente;
     
-    @OneToMany(mappedBy = "produit", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "produit", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<IngredientProduit> ingredientProduits;
     
     @OneToMany(mappedBy = "produit", cascade = CascadeType.ALL)
     private List<CommandeLine> commandeLines;
-    
+
 
 }
