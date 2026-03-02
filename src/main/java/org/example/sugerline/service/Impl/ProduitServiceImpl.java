@@ -66,15 +66,7 @@ public class ProduitServiceImpl implements ProduitService {
         Produit produit = produitRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Produit not found with id: " + id));
 
-        if (produitUpdateDto.getNom() != null) {
-            produit.setNom(produitUpdateDto.getNom());
-        }
-        if (produitUpdateDto.getPrixProduction() != null) {
-            produit.setPrixProduction(produitUpdateDto.getPrixProduction());
-        }
-        if (produitUpdateDto.getPrixVente() != null) {
-            produit.setPrixVente(produitUpdateDto.getPrixVente());
-        }
+        produitMapper.updateEntityFromDTO(produitUpdateDto, produit);
 
         if (produitUpdateDto.getIngredientProduits() != null) {
             produit.getIngredientProduits().clear();
