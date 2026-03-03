@@ -1,0 +1,827 @@
+{
+  "info": {
+    "name": "SugarLine API - Complete Collection",
+    "description": "Collection complète pour tester l'API SugarLine avec JWT Authentication",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "sugarline_2025"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🔐 Authentication",
+      "item": [
+        {
+          "name": "Register - ADMINISTRATEUR",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set('jwt_token', jsonData.token);",
+                  "    pm.collectionVariables.set('jwt_token', jsonData.token);",
+                  "    console.log('Token saved: ' + jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"email\": \"admin@sugarline.com\",\n  \"motDePasse\": \"admin123\",\n  \"fullName\": \"Administrateur Principal\",\n  \"role\": \"ADMINISTRATEUR\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register - CAISSIER",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set('jwt_token', jsonData.token);",
+                  "    pm.collectionVariables.set('jwt_token', jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"caissier1\",\n  \"email\": \"caissier@sugarline.com\",\n  \"motDePasse\": \"caissier123\",\n  \"fullName\": \"Mohamed Caissier\",\n  \"role\": \"CAISSIER\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register - CLIENT",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set('jwt_token', jsonData.token);",
+                  "    pm.collectionVariables.set('jwt_token', jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"client1\",\n  \"email\": \"client@example.com\",\n  \"motDePasse\": \"client123\",\n  \"fullName\": \"Ahmed Client\",\n  \"role\": \"CLIENT\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register - LIVREUR",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set('jwt_token', jsonData.token);",
+                  "    pm.collectionVariables.set('jwt_token', jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"livreur1\",\n  \"email\": \"livreur@sugarline.com\",\n  \"motDePasse\": \"livreur123\",\n  \"fullName\": \"Youssef Livreur\",\n  \"role\": \"LIVREUR\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register - MAGASIN",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set('jwt_token', jsonData.token);",
+                  "    pm.collectionVariables.set('jwt_token', jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"magasin1\",\n  \"email\": \"magasin@sugarline.com\",\n  \"motDePasse\": \"magasin123\",\n  \"fullName\": \"Responsable Magasin\",\n  \"role\": \"MAGASIN\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set('jwt_token', jsonData.token);",
+                  "    pm.collectionVariables.set('jwt_token', jsonData.token);",
+                  "    console.log('✅ Login successful! Token saved.');",
+                  "    console.log('User: ' + jsonData.username);",
+                  "    console.log('Role: ' + jsonData.role);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"motDePasse\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🧪 Test Endpoints",
+      "item": [
+        {
+          "name": "Public Endpoint (No Auth)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/test/public",
+              "host": ["{{base_url}}"],
+              "path": ["api", "test", "public"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "User Endpoint (Any Auth)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/test/user",
+              "host": ["{{base_url}}"],
+              "path": ["api", "test", "user"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Admin Endpoint",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/test/admin",
+              "host": ["{{base_url}}"],
+              "path": ["api", "test", "admin"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Caissier Endpoint",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/test/caissier",
+              "host": ["{{base_url}}"],
+              "path": ["api", "test", "caissier"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Magasin Endpoint",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/test/magasin",
+              "host": ["{{base_url}}"],
+              "path": ["api", "test", "magasin"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Livreur Endpoint",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/test/livreur",
+              "host": ["{{base_url}}"],
+              "path": ["api", "test", "livreur"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Client Endpoint",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/test/client",
+              "host": ["{{base_url}}"],
+              "path": ["api", "test", "client"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Admin or Caissier Endpoint",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/test/admin-or-caissier",
+              "host": ["{{base_url}}"],
+              "path": ["api", "test", "admin-or-caissier"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🍰 Produits",
+      "item": [
+        {
+          "name": "Get All Produits",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/produits",
+              "host": ["{{base_url}}"],
+              "path": ["api", "produits"]
+            },
+            "description": "Accessible par: ADMINISTRATEUR, MAGASIN, CAISSIER"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Produit By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/produits/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "produits", "1"]
+            },
+            "description": "Accessible par tous les utilisateurs authentifiés"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Produit",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Gâteau au chocolat\",\n  \"prix\": 25.50,\n  \"description\": \"Délicieux gâteau au chocolat\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/produits",
+              "host": ["{{base_url}}"],
+              "path": ["api", "produits"]
+            },
+            "description": "Accessible par: ADMINISTRATEUR, MAGASIN"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Produit",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Gâteau au chocolat - Modifié\",\n  \"prix\": 30.00,\n  \"description\": \"Nouvelle description\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/produits/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "produits", "1"]
+            },
+            "description": "Accessible par: ADMINISTRATEUR, MAGASIN"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Produit",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/produits/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "produits", "1"]
+            },
+            "description": "Accessible par: ADMINISTRATEUR uniquement"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📦 Commandes",
+      "item": [
+        {
+          "name": "Get All Commandes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/commandes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "commandes"]
+            },
+            "description": "Accessible par: ADMINISTRATEUR, CAISSIER, CLIENT, LIVREUR"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Commande By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/commandes/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "commandes", "1"]
+            },
+            "description": "Accessible par: ADMINISTRATEUR, CAISSIER, CLIENT, LIVREUR"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Commande",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"produits\": [\n    {\n      \"produitId\": 1,\n      \"quantite\": 2\n    }\n  ],\n  \"adresseLivraison\": \"123 Rue Example, Nador\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/commandes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "commandes"]
+            },
+            "description": "Accessible par: ADMINISTRATEUR, CAISSIER, CLIENT"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Commande",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"statut\": \"EN_COURS\",\n  \"adresseLivraison\": \"Nouvelle adresse\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/commandes/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "commandes", "1"]
+            },
+            "description": "Accessible par: ADMINISTRATEUR, CAISSIER"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Commande Status (Livreur)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"statut\": \"LIVREE\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/commandes/1/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "commandes", "1", "status"]
+            },
+            "description": "Accessible par: ADMINISTRATEUR, CAISSIER, LIVREUR"
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Commande",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/commandes/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "commandes", "1"]
+            },
+            "description": "Accessible par: ADMINISTRATEUR, CAISSIER, CLIENT"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🥖 Ingredients",
+      "item": [
+        {
+          "name": "Get All Ingredients",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/ingredients",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ingredients"]
+            },
+            "description": "Accessible par: ADMINISTRATEUR, MAGASIN"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Ingredient",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Farine\",\n  \"quantite\": 50,\n  \"unite\": \"kg\",\n  \"prixUnitaire\": 8.50\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/ingredients",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ingredients"]
+            },
+            "description": "Accessible par: ADMINISTRATEUR, MAGASIN"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Ingredient",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Farine\",\n  \"quantite\": 100,\n  \"unite\": \"kg\",\n  \"prixUnitaire\": 8.50\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/ingredients/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ingredients", "1"]
+            },
+            "description": "Accessible par: ADMINISTRATEUR, MAGASIN"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Ingredient",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/ingredients/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ingredients", "1"]
+            },
+            "description": "Accessible par: ADMINISTRATEUR uniquement"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📊 Rapports",
+      "item": [
+        {
+          "name": "Get All Rapports",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/rapports",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rapports"]
+            },
+            "description": "Accessible par: ADMINISTRATEUR, CAISSIER"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Rapport By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/rapports/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rapports", "1"]
+            },
+            "description": "Accessible par: ADMINISTRATEUR, CAISSIER"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Rapport",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mois\": \"Janvier\",\n  \"annee\": 2025,\n  \"chiffreAffaires\": 50000,\n  \"benefices\": 15000\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/rapports",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rapports"]
+            },
+            "description": "Accessible par: ADMINISTRATEUR uniquement"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Rapport",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/rapports/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rapports", "1"]
+            },
+            "description": "Accessible par: ADMINISTRATEUR uniquement"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "👥 Utilisateurs",
+      "item": [
+        {
+          "name": "Get All Utilisateurs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/utilisateurs",
+              "host": ["{{base_url}}"],
+              "path": ["api", "utilisateurs"]
+            },
+            "description": "Accessible par: ADMINISTRATEUR uniquement"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Utilisateur By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/utilisateurs/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "utilisateurs", "1"]
+            },
+            "description": "Accessible par: ADMINISTRATEUR uniquement"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Utilisateur",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"newuser\",\n  \"email\": \"newuser@sugarline.com\",\n  \"motDePasse\": \"password123\",\n  \"fullName\": \"New User\",\n  \"role\": \"CAISSIER\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/utilisateurs",
+              "host": ["{{base_url}}"],
+              "path": ["api", "utilisateurs"]
+            },
+            "description": "Accessible par: ADMINISTRATEUR uniquement"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Utilisateur",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"updateduser\",\n  \"email\": \"updated@sugarline.com\",\n  \"fullName\": \"Updated Name\",\n  \"role\": \"CAISSIER\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/utilisateurs/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "utilisateurs", "1"]
+            },
+            "description": "Accessible par: ADMINISTRATEUR uniquement"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Utilisateur",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/utilisateurs/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "utilisateurs", "1"]
+            },
+            "description": "Accessible par: ADMINISTRATEUR uniquement"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
+

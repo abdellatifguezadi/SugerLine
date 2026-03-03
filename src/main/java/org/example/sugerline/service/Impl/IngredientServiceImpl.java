@@ -6,6 +6,7 @@ import org.example.sugerline.dto.request.IngredientRequestDTO;
 import org.example.sugerline.dto.request.IngredientUpdateDto;
 import org.example.sugerline.dto.response.IngredientResponseDTO;
 import org.example.sugerline.entity.Ingredient;
+import org.example.sugerline.exception.ResourceNotFoundException;
 import org.example.sugerline.mapper.IngredientMapper;
 import org.example.sugerline.repository.IngredientRepository;
 import org.example.sugerline.service.IngredientService;
@@ -32,7 +33,7 @@ public class IngredientServiceImpl implements IngredientService {
     public IngredientResponseDTO getIngredientById(Long id) {
 
         Ingredient ingredient = ingredientRepository.findById(id)
-                .orElseThrow(()-> new RuntimeException("Ingredient not found with id: " + id));
+                .orElseThrow(()-> new ResourceNotFoundException("Ingredient not found with id: " + id));
 
         return ingredientMapper.toResponseDTO(ingredient);
     }
@@ -41,7 +42,7 @@ public class IngredientServiceImpl implements IngredientService {
     public IngredientResponseDTO updateIngredient(Long id, IngredientUpdateDto ingredientUpdateDto) {
 
         Ingredient ingredint = ingredientRepository.findById(id)
-                .orElseThrow(()-> new RuntimeException("Ingredient not found with id: " + id));
+                .orElseThrow(()-> new ResourceNotFoundException("Ingredient not found with id: " + id));
 
         ingredientMapper.updateEntityFromDTO(ingredientUpdateDto,ingredint);
         return ingredientMapper.toResponseDTO(ingredientRepository.save(ingredint));
