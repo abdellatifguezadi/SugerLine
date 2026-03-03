@@ -5,6 +5,7 @@ import org.example.sugerline.dto.request.LoginRequestDTO;
 import org.example.sugerline.dto.request.RegisterRequestDTO;
 import org.example.sugerline.dto.response.AuthResponseDTO;
 import org.example.sugerline.entity.Utilisateur;
+import org.example.sugerline.exception.ResourceNotFoundException;
 import org.example.sugerline.mapper.UtilisateurMapper;
 import org.example.sugerline.repository.UtilisateurRepository;
 import org.example.sugerline.security.JwtUtil;
@@ -28,11 +29,11 @@ public class AuthServiceImpl implements IAuthService {
     @Override
     public AuthResponseDTO register(RegisterRequestDTO registerRequest) {
         if (utilisateurRepository.existsByUsername(registerRequest.getUsername())) {
-            throw new RuntimeException("Username déjà utilisé");
+            throw new ResourceNotFoundException("Username déjà utilisé");
         }
 
         if (utilisateurRepository.existsByEmail(registerRequest.getEmail())) {
-            throw new RuntimeException("Email déjà utilisé");
+            throw new ResourceNotFoundException("Email déjà utilisé");
         }
 
         Utilisateur utilisateur = utilisateurMapper.toEntity(registerRequest);
@@ -56,7 +57,7 @@ public class AuthServiceImpl implements IAuthService {
         );
 
         Utilisateur utilisateur = utilisateurRepository.findByUsername(loginRequest.getUsername())
-                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
 
         AuthResponseDTO response = utilisateurMapper.toAuthResponseDTO(utilisateur);
         response.setToken(jwtUtil.generateToken(utilisateur.getUsername(), utilisateur.getRole().name()));

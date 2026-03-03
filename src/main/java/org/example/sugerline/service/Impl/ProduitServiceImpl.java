@@ -8,6 +8,7 @@ import org.example.sugerline.dto.response.ProduitResponseDTO;
 import org.example.sugerline.entity.Ingredient;
 import org.example.sugerline.entity.IngredientProduit;
 import org.example.sugerline.entity.Produit;
+import org.example.sugerline.exception.ResourceNotFoundException;
 import org.example.sugerline.mapper.ProduitMapper;
 import org.example.sugerline.repository.IngredientRepository;
 import org.example.sugerline.repository.ProduitRepository;
@@ -36,7 +37,7 @@ public class ProduitServiceImpl implements ProduitService {
 
             for (IngredientProduitRequestDTO ipDto : produitRequestDTO.getIngredientProduits()) {
                 Ingredient ingredient = ingredientRepository.findById(ipDto.getIngredientId())
-                        .orElseThrow(() -> new RuntimeException("Ingredient not found with id: " + ipDto.getIngredientId()));
+                        .orElseThrow(() -> new ResourceNotFoundException("Ingredient not found with id: " + ipDto.getIngredientId()));
 
                 IngredientProduit ip = IngredientProduit.builder()
                         .quantite(ipDto.getQuantite())
@@ -56,7 +57,7 @@ public class ProduitServiceImpl implements ProduitService {
     @Override
     public ProduitResponseDTO getProduitById(Long id) {
         Produit produit = produitRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Produit not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Produit not found with id: " + id));
         return produitMapper.toResponseDTO(produit);
     }
 
@@ -64,7 +65,7 @@ public class ProduitServiceImpl implements ProduitService {
     @Transactional
     public ProduitResponseDTO updateProduit(Long id, ProduitUpdateDto produitUpdateDto) {
         Produit produit = produitRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Produit not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Produit not found with id: " + id));
 
         produitMapper.updateEntityFromDTO(produitUpdateDto, produit);
 
@@ -73,7 +74,7 @@ public class ProduitServiceImpl implements ProduitService {
 
             for (IngredientProduitRequestDTO ipDto : produitUpdateDto.getIngredientProduits()) {
                 Ingredient ingredient = ingredientRepository.findById(ipDto.getIngredientId())
-                        .orElseThrow(() -> new RuntimeException("Ingredient not found with id: " + ipDto.getIngredientId()));
+                        .orElseThrow(() -> new ResourceNotFoundException("Ingredient not found with id: " + ipDto.getIngredientId()));
 
                 IngredientProduit ip = IngredientProduit.builder()
                         .quantite(ipDto.getQuantite())
@@ -91,7 +92,7 @@ public class ProduitServiceImpl implements ProduitService {
     @Override
     public void deleteProduit(Long id) {
         Produit produit = produitRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Produit not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Produit not found with id: " + id));
         produitRepository.delete(produit);
     }
 
