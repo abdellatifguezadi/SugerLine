@@ -2,6 +2,8 @@ package org.example.sugerline.service.Impl;
 
 import lombok.RequiredArgsConstructor;
 import org.example.sugerline.dto.request.CommandeRequestDTO;
+import org.example.sugerline.dto.request.CommandeUpdateDTO;
+import org.example.sugerline.dto.request.CommandeLineRequestDTO;
 import org.example.sugerline.dto.response.CommandeResponseDTO;
 import org.example.sugerline.entity.Commande;
 import org.example.sugerline.entity.CommandeLine;
@@ -90,8 +92,20 @@ public class CommandeServiceImpl implements CommandeService {
 
     @Override
     public CommandeResponseDTO getCommandeById(Long id) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Utilisateur currentUser = utilisateurRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
+
         Commande commande = commandeRepository.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundException("Commande non trouvé avec l'ID: " + id));
+                .orElseThrow(()-> new ResourceNotFoundException("Commande non trouvée avec l'ID: " + id));
+
+        boolean isAdmin = "ADMINISTRATEUR".equals(currentUser.getRole().name());
+        boolean isOwner = commande.getUtilisateur().getId().equals(currentUser.getId());
+
+        if (!isAdmin && !isOwner) {
+            throw new InvalidOperationException("Vous n'avez pas l'autorisation de consulter cette commande");
+        }
+
         return commandeMapper.toResponseDTO(commande);
     }
 
@@ -108,6 +122,73 @@ public class CommandeServiceImpl implements CommandeService {
         Commande commandeAnnulee = commandeRepository.save(commande);
 
         return commandeMapper.toResponseDTO(commandeAnnulee);
+    }
+
+    @Override
+    @Transactional
+    public CommandeResponseDTO updateCommande(Long id, CommandeUpdateDTO commandeUpdateDTO) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Utilisateur currentUser = utilisateurRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
+
+        Commande commande = commandeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Commande non trouvée avec l'ID: " + id));
+
+        boolean isAdmin = "ADMINISTRATEUR".equals(currentUser.getRole().name());
+        boolean isOwner = commande.getUtilisateur().getId().equals(currentUser.getId());
+
+        if (!isAdmin && !isOwner) {
+            throw new InvalidOperationException("Vous n'avez pas l'autorisation de modifier cette commande");
+        }
+
+        commandeMapper.updateEntityFromDTO(commandeUpdateDTO, commande);
+
+        if (commandeUpdateDTO.getCommandeLines() != null && !commandeUpdateDTO.getCommandeLines().isEmpty()) {
+            commande.getCommandeLines().clear();
+
+            double montantTotal = 0.0;
+
+            for (CommandeLineRequestDTO lineDTO : commandeUpdateDTO.getCommandeLines()) {
+                Produit produit = produitRepository.findById(lineDTO.getProduitId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Produit non trouvé avec l'ID: " + lineDTO.getProduitId()));
+
+                double lineTotal = produit.getPrixVente() * lineDTO.getQuantite();
+                montantTotal += lineTotal;
+
+                CommandeLine commandeLine = CommandeLine.builder()
+                        .produit(produit)
+                        .quantite(lineDTO.getQuantite())
+                        .commande(commande)
+                        .Total(lineTotal)
+                        .build();
+
+                commande.getCommandeLines().add(commandeLine);
+            }
+
+            double pourcentageReduction = getReductionByRole(commande.getUtilisateur().getRole().name());
+            double montantReduction = montantTotal * (pourcentageReduction / 100);
+            double totalFinal = montantTotal - montantReduction;
+
+            commande.setMontantAvantReduction(montantTotal);
+            commande.setPourcentageReduction(pourcentageReduction);
+            commande.setMontantReduction(montantReduction);
+            commande.setTotal(totalFinal);
+        }
+
+        Commande updatedCommande = commandeRepository.save(commande);
+        return commandeMapper.toResponseDTO(updatedCommande);
+    }
+
+    @Override
+    public List<CommandeResponseDTO> getMyCommandes() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Utilisateur currentUser = utilisateurRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
+
+        return commandeRepository.findAll().stream()
+                .filter(commande -> commande.getUtilisateur().getId().equals(currentUser.getId()))
+                .map(commandeMapper::toResponseDTO)
+                .toList();
     }
 
     private double getReductionByRole(String role) {

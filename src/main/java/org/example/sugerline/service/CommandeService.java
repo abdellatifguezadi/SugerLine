@@ -1,6 +1,7 @@
 package org.example.sugerline.service;
 
 import org.example.sugerline.dto.request.CommandeRequestDTO;
+import org.example.sugerline.dto.request.CommandeUpdateDTO;
 import org.example.sugerline.dto.response.CommandeResponseDTO;
 
 import java.util.List;
@@ -10,4 +11,6 @@ public interface CommandeService {
     List<CommandeResponseDTO> getAllCommande();
     CommandeResponseDTO getCommandeById(Long id);
     CommandeResponseDTO annulerCommande(Long id);
+    CommandeResponseDTO updateCommande(Long id, CommandeUpdateDTO commandeUpdateDTO);
+    List<CommandeResponseDTO> getMyCommandes();
 }

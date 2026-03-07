@@ -3,6 +3,7 @@ package org.example.sugerline.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.sugerline.dto.request.CommandeRequestDTO;
+import org.example.sugerline.dto.request.CommandeUpdateDTO;
 import org.example.sugerline.dto.response.CommandeResponseDTO;
 import org.example.sugerline.service.CommandeService;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,7 @@ public class CommandeController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMINISTRATEUR')")
     public ResponseEntity<List<CommandeResponseDTO>> getAllCommandes(){
         List<CommandeResponseDTO> commandes =  commandeService.getAllCommande();
         return ResponseEntity.ok(commandes);
@@ -43,5 +45,17 @@ public class CommandeController {
     public ResponseEntity<CommandeResponseDTO> annulerCommande(@PathVariable Long id){
         CommandeResponseDTO commande = commandeService.annulerCommande(id);
         return ResponseEntity.ok(commande);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<CommandeResponseDTO> updateCommande(@PathVariable Long id, @Valid @RequestBody CommandeUpdateDTO commandeUpdateDTO){
+        CommandeResponseDTO commande = commandeService.updateCommande(id, commandeUpdateDTO);
+        return ResponseEntity.ok(commande);
+    }
+
+    @GetMapping("/my-commandes")
+    public ResponseEntity<List<CommandeResponseDTO>> getMyCommandes(){
+        List<CommandeResponseDTO> commandes = commandeService.getMyCommandes();
+        return ResponseEntity.ok(commandes);
     }
 }

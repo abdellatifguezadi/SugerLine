@@ -27,7 +27,7 @@ public class Commande {
     @JoinColumn(name = "utilisateur_id")
     private Utilisateur utilisateur;
     
-    @OneToMany(mappedBy = "commande", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "commande", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommandeLine> commandeLines;
     
     @OneToOne(mappedBy = "commande", cascade = CascadeType.ALL)
