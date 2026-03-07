@@ -18,7 +18,6 @@ public interface IngredientProduitMapper {
     IngredientProduit toEntity(IngredientProduitRequestDTO ingredientProduitRequestDTO);
 
     @Mapping(target = "ingredientNom", source = "ingredient.nom")
-    @Mapping(target = "ingredientId", source = "ingredient.id")
     IngredientProduitResponseDTO toResponseDTO(IngredientProduit ingredientProduit);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

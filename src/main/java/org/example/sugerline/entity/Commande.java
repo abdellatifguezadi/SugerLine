@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -16,10 +16,9 @@ public class Commande {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    private LocalDateTime date;
+    private LocalDate date;
     
-    private String source;
-    private String statut;
+    private String statut = "EN_ATTENTE";
     
     @ManyToOne
     @JoinColumn(name = "utilisateur_id")

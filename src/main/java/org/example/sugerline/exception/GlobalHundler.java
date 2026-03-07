@@ -29,5 +29,12 @@ public class GlobalHundler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
+    @ExceptionHandler(InvalidOperationException.class)
+    public ResponseEntity<HashMap<String, String>> handleInvalidOperation(InvalidOperationException ex){
+        HashMap<String, String> error = new HashMap<>();
+        error.put("error", ex.getMessage());
+        error.put("status", "400");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
 
 }
