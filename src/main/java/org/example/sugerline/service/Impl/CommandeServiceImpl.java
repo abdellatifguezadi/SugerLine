@@ -7,6 +7,7 @@ import org.example.sugerline.entity.Commande;
 import org.example.sugerline.entity.CommandeLine;
 import org.example.sugerline.entity.Produit;
 import org.example.sugerline.entity.Utilisateur;
+import org.example.sugerline.enums.StatutCommande;
 import org.example.sugerline.exception.InvalidOperationException;
 import org.example.sugerline.exception.ResourceNotFoundException;
 import org.example.sugerline.mapper.CommandeMapper;
@@ -17,6 +18,8 @@ import org.example.sugerline.service.CommandeService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -76,6 +79,35 @@ public class CommandeServiceImpl implements CommandeService {
         Commande savedCommande = commandeRepository.save(commande);
 
         return commandeMapper.toResponseDTO(savedCommande);
+    }
+
+    @Override
+    public List<CommandeResponseDTO> getAllCommande() {
+        return commandeRepository.findAll().stream()
+                .map(commandeMapper::toResponseDTO)
+                .toList();
+    }
+
+    @Override
+    public CommandeResponseDTO getCommandeById(Long id) {
+        Commande commande = commandeRepository.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundException("Commande non trouvé avec l'ID: " + id));
+        return commandeMapper.toResponseDTO(commande);
+    }
+
+    @Override
+    public CommandeResponseDTO annulerCommande(Long id) {
+        Commande commande = commandeRepository.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundException("Commande non trouvé avec l'ID: " + id));
+
+        if (commande.getStatut() != StatutCommande.EN_ATTENTE) {
+            throw new InvalidOperationException("Impossible d'annuler une commande qui n'est pas en attente. Statut actuel: " + commande.getStatut());
+        }
+
+        commande.setStatut(StatutCommande.ANNULEE);
+        Commande commandeAnnulee = commandeRepository.save(commande);
+
+        return commandeMapper.toResponseDTO(commandeAnnulee);
     }
 
     private double getReductionByRole(String role) {
