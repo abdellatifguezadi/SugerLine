@@ -11,6 +11,5 @@ public class IngredientProduitResponseDTO {
     private Long id;
     private Double quantite;
     private String ingredientNom;
-    private Long ingredientId;
 }
 

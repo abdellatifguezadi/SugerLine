@@ -12,7 +12,12 @@ import org.example.sugerline.exception.ResourceNotFoundException;
 import org.example.sugerline.mapper.ProduitMapper;
 import org.example.sugerline.repository.IngredientRepository;
 import org.example.sugerline.repository.ProduitRepository;
+import org.example.sugerline.specification.SpecificationBuilder;
 import org.example.sugerline.service.ProduitService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -97,10 +102,9 @@ public class ProduitServiceImpl implements ProduitService {
     }
 
     @Override
-    public List<ProduitResponseDTO> getAllProduits() {
-        return produitRepository.findAll()
-                .stream()
-                .map(produitMapper::toResponseDTO)
-                .toList();
+    public Page<ProduitResponseDTO> getAllProduits(String nom, Double minPrice, Double maxPrice, Pageable pageable) {
+        Specification<Produit> spec = SpecificationBuilder.produitSpec(nom, minPrice, maxPrice);
+        Page<Produit> page = produitRepository.findAll(spec, pageable);
+        return page.map(produitMapper::toResponseDTO);
     }
 }

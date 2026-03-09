@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.time.LocalDateTime;
+import org.example.sugerline.enums.StatutCommande;
+
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -16,16 +18,16 @@ public class Commande {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    private LocalDateTime date;
+    private LocalDate date;
     
-    private String source;
-    private String statut;
-    
+    @Enumerated(EnumType.STRING)
+    private StatutCommande statut = StatutCommande.EN_ATTENTE;
+
     @ManyToOne
     @JoinColumn(name = "utilisateur_id")
     private Utilisateur utilisateur;
     
-    @OneToMany(mappedBy = "commande", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "commande", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommandeLine> commandeLines;
     
     @OneToOne(mappedBy = "commande", cascade = CascadeType.ALL)

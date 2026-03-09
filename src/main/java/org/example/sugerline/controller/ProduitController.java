@@ -6,6 +6,8 @@ import org.example.sugerline.dto.request.ProduitRequestDTO;
 import org.example.sugerline.dto.request.ProduitUpdateDto;
 import org.example.sugerline.dto.response.ProduitResponseDTO;
 import org.example.sugerline.service.ProduitService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,8 +34,13 @@ public class ProduitController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProduitResponseDTO>> getAllProduits() {
-        List<ProduitResponseDTO> produits = produitService.getAllProduits();
+    public ResponseEntity<Page<ProduitResponseDTO>> getAllProduits(
+            @RequestParam(required = false) String nom,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            Pageable pageable
+    ) {
+        Page<ProduitResponseDTO> produits = produitService.getAllProduits(nom, minPrice, maxPrice, pageable);
         return ResponseEntity.ok(produits);
     }
 
@@ -49,5 +56,3 @@ public class ProduitController {
         return ResponseEntity.noContent().build();
     }
 }
-
-

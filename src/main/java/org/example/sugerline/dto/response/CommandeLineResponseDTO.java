@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 public class CommandeLineResponseDTO {
     private Long id;
     private Integer quantite;
-    private ProduitResponseDTO produit;
+    private String produit;
+    private Double total;
 }
-
