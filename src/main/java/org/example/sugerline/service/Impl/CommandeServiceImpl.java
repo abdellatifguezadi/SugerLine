@@ -17,10 +17,15 @@ import org.example.sugerline.repository.CommandeRepository;
 import org.example.sugerline.repository.ProduitRepository;
 import org.example.sugerline.repository.UtilisateurRepository;
 import org.example.sugerline.service.CommandeService;
+import org.example.sugerline.specification.SpecificationBuilder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -84,27 +89,19 @@ public class CommandeServiceImpl implements CommandeService {
     }
 
     @Override
-    public List<CommandeResponseDTO> getAllCommande() {
-        return commandeRepository.findAll().stream()
-                .map(commandeMapper::toResponseDTO)
-                .toList();
+    public Page<CommandeResponseDTO> getAllCommande(String statut, Long utilisateurId, LocalDate from, LocalDate to, Double minTotal, Double maxTotal, Pageable pageable) {
+        Specification<Commande> spec = SpecificationBuilder.commandeSpec(statut, utilisateurId, from, to, minTotal, maxTotal);
+        Page<Commande> page = commandeRepository.findAll(spec, pageable);
+        return page.map(commandeMapper::toResponseDTO);
     }
 
     @Override
     public CommandeResponseDTO getCommandeById(Long id) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Utilisateur currentUser = utilisateurRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
-
+        Utilisateur currentUser = getCurrentUser();
         Commande commande = commandeRepository.findById(id)
                 .orElseThrow(()-> new ResourceNotFoundException("Commande non trouvée avec l'ID: " + id));
 
-        boolean isAdmin = "ADMINISTRATEUR".equals(currentUser.getRole().name());
-        boolean isOwner = commande.getUtilisateur().getId().equals(currentUser.getId());
-
-        if (!isAdmin && !isOwner) {
-            throw new InvalidOperationException("Vous n'avez pas l'autorisation de consulter cette commande");
-        }
+        checkCommandeAccess(currentUser, commande);
 
         return commandeMapper.toResponseDTO(commande);
     }
@@ -127,19 +124,11 @@ public class CommandeServiceImpl implements CommandeService {
     @Override
     @Transactional
     public CommandeResponseDTO updateCommande(Long id, CommandeUpdateDTO commandeUpdateDTO) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Utilisateur currentUser = utilisateurRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
-
+        Utilisateur currentUser = getCurrentUser();
         Commande commande = commandeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Commande non trouvée avec l'ID: " + id));
 
-        boolean isAdmin = "ADMINISTRATEUR".equals(currentUser.getRole().name());
-        boolean isOwner = commande.getUtilisateur().getId().equals(currentUser.getId());
-
-        if (!isAdmin && !isOwner) {
-            throw new InvalidOperationException("Vous n'avez pas l'autorisation de modifier cette commande");
-        }
+        checkCommandeAccess(currentUser, commande);
 
         commandeMapper.updateEntityFromDTO(commandeUpdateDTO, commande);
 
@@ -180,15 +169,27 @@ public class CommandeServiceImpl implements CommandeService {
     }
 
     @Override
-    public List<CommandeResponseDTO> getMyCommandes() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Utilisateur currentUser = utilisateurRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
+    public Page<CommandeResponseDTO> getMyCommandes(String statut, LocalDate from, LocalDate to, Double minTotal, Double maxTotal, Pageable pageable) {
+        Utilisateur currentUser = getCurrentUser();
+        Specification<Commande> spec = SpecificationBuilder.commandeSpec(statut, currentUser.getId(), from, to, minTotal, maxTotal);
+        Page<Commande> page = commandeRepository.findAll(spec, pageable);
+        return page.map(commandeMapper::toResponseDTO);
+    }
 
-        return commandeRepository.findAll().stream()
-                .filter(commande -> commande.getUtilisateur().getId().equals(currentUser.getId()))
-                .map(commandeMapper::toResponseDTO)
-                .toList();
+
+    private Utilisateur getCurrentUser() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return utilisateurRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
+    }
+
+    private void checkCommandeAccess(Utilisateur currentUser, Commande commande) {
+        boolean isAdmin = "ADMINISTRATEUR".equals(currentUser.getRole().name());
+        boolean isOwner = commande.getUtilisateur().getId().equals(currentUser.getId());
+
+        if (!isAdmin && !isOwner) {
+            throw new InvalidOperationException("Vous n'avez pas l'autorisation d'accéder à cette commande");
+        }
     }
 
     private double getReductionByRole(String role) {
