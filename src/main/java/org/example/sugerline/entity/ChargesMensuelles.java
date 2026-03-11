@@ -13,7 +13,7 @@ public class ChargesMensuelles {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     private Integer mois;
     private Integer annee;
     private Double electricite;
@@ -22,4 +22,8 @@ public class ChargesMensuelles {
     private Double loyer;
     private Double autres;
     private Double total;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "utilisateur_id")
+    private Utilisateur utilisateur;
 }

@@ -59,6 +59,13 @@ public class CommandeController {
         return ResponseEntity.ok(commande);
     }
 
+    @PatchMapping("/{id}/livrer")
+    @PreAuthorize("hasRole('ADMINISTRATEUR')")
+    public ResponseEntity<CommandeResponseDTO> livrerCommande(@PathVariable Long id){
+        CommandeResponseDTO commande = commandeService.livrerCommande(id);
+        return ResponseEntity.ok(commande);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<CommandeResponseDTO> updateCommande(@PathVariable Long id, @Valid @RequestBody CommandeUpdateDTO commandeUpdateDTO){
         CommandeResponseDTO commande = commandeService.updateCommande(id, commandeUpdateDTO);

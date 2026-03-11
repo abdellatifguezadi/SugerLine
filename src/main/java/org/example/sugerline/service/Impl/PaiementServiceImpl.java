@@ -23,6 +23,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class PaiementServiceImpl implements PaiementService {
@@ -42,14 +44,21 @@ public class PaiementServiceImpl implements PaiementService {
             throw new InvalidOperationException("Impossible de créer un paiement pour une commande annulée");
         }
 
-        if (paiementRepository.existsByCommandeId(dto.getCommandeId())) {
-            throw new InvalidOperationException("Un paiement existe déjà pour la commande ID: " + dto.getCommandeId());
+        if (commande.getStatut() != StatutCommande.LIVREE) {
+            throw new InvalidOperationException("Impossible de créer un paiement : la commande doit être LIVRÉE avant le paiement. Statut actuel: " + commande.getStatut());
         }
 
-        if (dto.getMontant() < commande.getTotal()) {
+        if (paiementRepository.existsByCommandeIdAndStatutIn(
+                dto.getCommandeId(),
+                List.of(StatutPaiement.EN_ATTENTE, StatutPaiement.ACCEPTE))) {
             throw new InvalidOperationException(
-                    "Le montant du paiement (" + dto.getMontant() +
-                    ") est inférieur au total de la commande (" + commande.getTotal() + ")"
+                "Un paiement EN_ATTENTE ou ACCEPTE existe déjà pour la commande ID: " + dto.getCommandeId()
+            );
+        }
+
+        if (Double.compare(dto.getMontant(), commande.getTotal()) != 0) {
+            throw new InvalidOperationException(
+                    "Le montant du paiement (" + dto.getMontant() + ") doit être exactement égal au total de la commande (" + commande.getTotal() + ")"
             );
         }
 

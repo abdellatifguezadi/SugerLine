@@ -17,5 +17,5 @@ public class ChargesMensuellesResponseDTO {
     private Double loyer;
     private Double autres;
     private Double total;
+    private String utilisateurUsername;
 }
-

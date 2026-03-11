@@ -130,6 +130,14 @@ public class CommandeServiceImpl implements CommandeService {
 
         checkCommandeAccess(currentUser, commande);
 
+        if (commande.getStatut() == StatutCommande.LIVREE) {
+            throw new InvalidOperationException("Impossible de modifier une commande déjà livrée");
+        }
+
+        if (commande.getStatut() == StatutCommande.ANNULEE) {
+            throw new InvalidOperationException("Impossible de modifier une commande annulée");
+        }
+
         commandeMapper.updateEntityFromDTO(commandeUpdateDTO, commande);
 
         if (commandeUpdateDTO.getCommandeLines() != null && !commandeUpdateDTO.getCommandeLines().isEmpty()) {
@@ -176,6 +184,22 @@ public class CommandeServiceImpl implements CommandeService {
         return page.map(commandeMapper::toResponseDTO);
     }
 
+    @Override
+    public CommandeResponseDTO livrerCommande(Long id) {
+        Commande commande = commandeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Commande non trouvée avec l'ID: " + id));
+
+        if (commande.getStatut() == StatutCommande.LIVREE) {
+            throw new InvalidOperationException("Cette commande est déjà livrée");
+        }
+
+        if (commande.getStatut() == StatutCommande.ANNULEE) {
+            throw new InvalidOperationException("Impossible de livrer une commande annulée");
+        }
+
+        commande.setStatut(StatutCommande.LIVREE);
+        return commandeMapper.toResponseDTO(commandeRepository.save(commande));
+    }
 
     private Utilisateur getCurrentUser() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();

@@ -14,6 +14,7 @@ public interface CommandeService {
     Page<CommandeResponseDTO> getAllCommande(String statut, Long utilisateurId, LocalDate from, LocalDate to, Double minTotal, Double maxTotal, Pageable pageable);
     CommandeResponseDTO getCommandeById(Long id);
     CommandeResponseDTO annulerCommande(Long id);
+    CommandeResponseDTO livrerCommande(Long id);
     CommandeResponseDTO updateCommande(Long id, CommandeUpdateDTO commandeUpdateDTO);
     Page<CommandeResponseDTO> getMyCommandes(String statut, LocalDate from, LocalDate to, Double minTotal, Double maxTotal, Pageable pageable);
 }

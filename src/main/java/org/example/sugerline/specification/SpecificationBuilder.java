@@ -1,5 +1,6 @@
 package org.example.sugerline.specification;
 
+import org.example.sugerline.entity.ChargesMensuelles;
 import org.example.sugerline.entity.Commande;
 import org.example.sugerline.entity.Paiement;
 import org.example.sugerline.entity.Produit;
@@ -77,6 +78,29 @@ public class SpecificationBuilder {
                 predicates.add(cb.equal(
                     root.get("commande").get("utilisateur").get("id"), utilisateurId
                 ));
+            }
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+    public static Specification<ChargesMensuelles> chargesSpec(Integer mois, Integer annee, Double minTotal, Double maxTotal, String utilisateurUsername) {
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (mois != null) {
+                predicates.add(cb.equal(root.get("mois"), mois));
+            }
+            if (annee != null) {
+                predicates.add(cb.equal(root.get("annee"), annee));
+            }
+            if (minTotal != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("total"), minTotal));
+            }
+            if (maxTotal != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("total"), maxTotal));
+            }
+            if (utilisateurUsername != null && !utilisateurUsername.isBlank()) {
+                predicates.add(cb.like(cb.lower(root.get("utilisateur").get("username")),
+                        "%" + utilisateurUsername.toLowerCase() + "%"));
             }
             return cb.and(predicates.toArray(new Predicate[0]));
         };
