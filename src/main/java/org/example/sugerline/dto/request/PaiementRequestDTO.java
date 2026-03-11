@@ -18,4 +18,3 @@ public class PaiementRequestDTO {
     @NotNull(message = "L'ID de la commande est obligatoire")
     private Long commandeId;
 }
-

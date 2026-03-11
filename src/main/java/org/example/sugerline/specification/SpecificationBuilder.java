@@ -1,8 +1,10 @@
 package org.example.sugerline.specification;
 
 import org.example.sugerline.entity.Commande;
+import org.example.sugerline.entity.Paiement;
 import org.example.sugerline.entity.Produit;
 import org.example.sugerline.enums.StatutCommande;
+import org.example.sugerline.enums.StatutPaiement;
 import org.springframework.data.jpa.domain.Specification;
 
 import jakarta.persistence.criteria.Predicate;
@@ -52,6 +54,29 @@ public class SpecificationBuilder {
             }
             if (maxTotal != null) {
                 predicates.add(cb.lessThanOrEqualTo(root.get("total"), maxTotal));
+            }
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+    public static Specification<Paiement> paiementSpec(String statut) {
+        return paiementSpec(statut, null);
+    }
+
+    public static Specification<Paiement> paiementSpec(String statut, Long utilisateurId) {
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (statut != null && !statut.isBlank()) {
+                try {
+                    StatutPaiement s = StatutPaiement.valueOf(statut.toUpperCase());
+                    predicates.add(cb.equal(root.get("statut"), s));
+                } catch (IllegalArgumentException ignored) {
+                }
+            }
+            if (utilisateurId != null) {
+                predicates.add(cb.equal(
+                    root.get("commande").get("utilisateur").get("id"), utilisateurId
+                ));
             }
             return cb.and(predicates.toArray(new Predicate[0]));
         };
