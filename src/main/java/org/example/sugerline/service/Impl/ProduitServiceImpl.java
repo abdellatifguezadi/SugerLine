@@ -56,6 +56,8 @@ public class ProduitServiceImpl implements ProduitService {
             produit.setIngredientProduits(ingredientProduits);
         }
 
+        produit.setPrixProduction(calculerPrixProduction(produit.getIngredientProduits()));
+
         return produitMapper.toResponseDTO(produitRepository.save(produit));
     }
 
@@ -91,6 +93,8 @@ public class ProduitServiceImpl implements ProduitService {
             }
         }
 
+        produit.setPrixProduction(calculerPrixProduction(produit.getIngredientProduits()));
+
         return produitMapper.toResponseDTO(produitRepository.save(produit));
     }
 
@@ -106,5 +110,16 @@ public class ProduitServiceImpl implements ProduitService {
         Specification<Produit> spec = SpecificationBuilder.produitSpec(nom, minPrice, maxPrice);
         Page<Produit> page = produitRepository.findAll(spec, pageable);
         return page.map(produitMapper::toResponseDTO);
+    }
+
+    private Double calculerPrixProduction(List<IngredientProduit> ingredientProduits) {
+        if (ingredientProduits == null || ingredientProduits.isEmpty()) return 0.0;
+        return ingredientProduits.stream()
+                .mapToDouble(ip -> {
+                    Double prixUnitaire = ip.getIngredient().getPrixUnitaire();
+                    Double quantite = ip.getQuantite();
+                    return ((prixUnitaire != null ? prixUnitaire : 0.0) * (quantite != null ? quantite : 0.0) / 100.00);
+                })
+                .sum();
     }
 }
