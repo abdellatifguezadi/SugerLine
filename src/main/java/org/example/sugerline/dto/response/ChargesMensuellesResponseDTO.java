@@ -11,11 +11,12 @@ public class ChargesMensuellesResponseDTO {
     private Long id;
     private Integer mois;
     private Integer annee;
+    private Double chargesVariables;
     private Double electricite;
     private Double eau;
     private Double salaires;
     private Double loyer;
     private Double autres;
     private Double total;
+    private String utilisateurUsername;
 }
-
