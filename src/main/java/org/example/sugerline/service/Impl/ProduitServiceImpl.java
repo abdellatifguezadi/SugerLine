@@ -16,7 +16,6 @@ import org.example.sugerline.specification.SpecificationBuilder;
 import org.example.sugerline.service.ProduitService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -118,7 +117,7 @@ public class ProduitServiceImpl implements ProduitService {
                 .mapToDouble(ip -> {
                     Double prixUnitaire = ip.getIngredient().getPrixUnitaire();
                     Double quantite = ip.getQuantite();
-                    return ((prixUnitaire != null ? prixUnitaire : 0.0) * (quantite != null ? quantite : 0.0) / 100.00);
+                    return ((prixUnitaire != null ? prixUnitaire : 0.0) * (quantite != null ? quantite : 0.0));
                 })
                 .sum();
     }

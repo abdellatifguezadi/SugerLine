@@ -5,11 +5,14 @@ import org.example.sugerline.dto.request.ChargesMensuellesRequestDTO;
 import org.example.sugerline.dto.request.ChargesMensuellesUpdateDTO;
 import org.example.sugerline.dto.response.ChargesMensuellesResponseDTO;
 import org.example.sugerline.entity.ChargesMensuelles;
+import org.example.sugerline.entity.Commande;
 import org.example.sugerline.entity.Utilisateur;
+import org.example.sugerline.enums.StatutCommande;
 import org.example.sugerline.exception.InvalidOperationException;
 import org.example.sugerline.exception.ResourceNotFoundException;
 import org.example.sugerline.mapper.ChargesMensuellesMapper;
 import org.example.sugerline.repository.ChargesMensuellesRepository;
+import org.example.sugerline.repository.CommandeRepository;
 import org.example.sugerline.repository.UtilisateurRepository;
 import org.example.sugerline.service.ChargesMensuellesService;
 import org.example.sugerline.specification.SpecificationBuilder;
@@ -20,6 +23,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ChargesMensuellesServiceImpl implements ChargesMensuellesService {
@@ -27,6 +32,7 @@ public class ChargesMensuellesServiceImpl implements ChargesMensuellesService {
     private final ChargesMensuellesRepository chargesRepository;
     private final ChargesMensuellesMapper chargesMapper;
     private final UtilisateurRepository utilisateurRepository;
+    private final CommandeRepository commandeRepository;
 
     @Override
     @Transactional
@@ -38,8 +44,9 @@ public class ChargesMensuellesServiceImpl implements ChargesMensuellesService {
         }
         ChargesMensuelles charges = chargesMapper.toEntity(dto);
         charges.setUtilisateur(getCurrentUser());
+        charges.setChargesVariables(calculerChargesVariables(dto.getMois(), dto.getAnnee()));
         charges.setTotal(calculerTotal(
-            dto.getElectricite(), dto.getEau(),
+            charges.getChargesVariables(), dto.getElectricite(), dto.getEau(),
             dto.getSalaires(), dto.getLoyer(), dto.getAutres()
         ));
         return chargesMapper.toResponseDTO(chargesRepository.save(charges));
@@ -63,8 +70,9 @@ public class ChargesMensuellesServiceImpl implements ChargesMensuellesService {
         }
 
         chargesMapper.updateEntityFromDTO(dto, charges);
+        charges.setChargesVariables(calculerChargesVariables(charges.getMois(), charges.getAnnee()));
         charges.setTotal(calculerTotal(
-            charges.getElectricite(), charges.getEau(),
+            charges.getChargesVariables(), charges.getElectricite(), charges.getEau(),
             charges.getSalaires(), charges.getLoyer(), charges.getAutres()
         ));
         return chargesMapper.toResponseDTO(chargesRepository.save(charges));
@@ -99,8 +107,22 @@ public class ChargesMensuellesServiceImpl implements ChargesMensuellesService {
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
     }
 
-    private Double calculerTotal(Double electricite, Double eau, Double salaires, Double loyer, Double autres) {
+    private Double calculerChargesVariables(Integer mois, Integer annee) {
+        List<Commande> commandesLivrees = commandeRepository.findByMoisAndAnneeAndStatut(mois, annee, StatutCommande.LIVREE);
+        
+        return commandesLivrees.stream()
+                .flatMap(commande -> commande.getCommandeLines().stream())
+                .mapToDouble(commandeLine -> {
+                    Double prixProduction = commandeLine.getProduit().getPrixProduction();
+                    Integer quantite = commandeLine.getQuantite();
+                    return (prixProduction != null ? prixProduction : 0.0) * (quantite != null ? quantite : 0);
+                })
+                .sum();
+    }
+
+    private Double calculerTotal(Double chargesVariables, Double electricite, Double eau, Double salaires, Double loyer, Double autres) {
         double total = 0.0;
+        if (chargesVariables != null) total += chargesVariables;
         if (electricite != null) total += electricite;
         if (eau != null) total += eau;
         if (salaires != null) total += salaires;

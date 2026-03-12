@@ -16,6 +16,7 @@ public class ChargesMensuelles {
 
     private Integer mois;
     private Integer annee;
+    private Double chargesVariables;
     private Double electricite;
     private Double eau;
     private Double salaires;
