@@ -5,6 +5,7 @@ import org.example.sugerline.dto.request.LoginRequestDTO;
 import org.example.sugerline.dto.request.RegisterRequestDTO;
 import org.example.sugerline.dto.response.AuthResponseDTO;
 import org.example.sugerline.entity.Utilisateur;
+import org.example.sugerline.enums.Role;
 import org.example.sugerline.exception.ResourceNotFoundException;
 import org.example.sugerline.mapper.UtilisateurMapper;
 import org.example.sugerline.repository.UtilisateurRepository;
@@ -27,7 +28,7 @@ public class AuthServiceImpl implements IAuthService {
     private final UtilisateurMapper utilisateurMapper;
 
     @Override
-    public AuthResponseDTO register(RegisterRequestDTO registerRequest) {
+    public AuthResponseDTO createUser(RegisterRequestDTO registerRequest) {
         if (utilisateurRepository.existsByUsername(registerRequest.getUsername())) {
             throw new ResourceNotFoundException("Username déjà utilisé");
         }
