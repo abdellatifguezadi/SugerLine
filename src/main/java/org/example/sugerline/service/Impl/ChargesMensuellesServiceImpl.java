@@ -121,13 +121,6 @@ public class ChargesMensuellesServiceImpl implements ChargesMensuellesService {
     }
 
     private Double calculerTotal(Double chargesVariables, Double electricite, Double eau, Double salaires, Double loyer, Double autres) {
-        double total = 0.0;
-        if (chargesVariables != null) total += chargesVariables;
-        if (electricite != null) total += electricite;
-        if (eau != null) total += eau;
-        if (salaires != null) total += salaires;
-        if (loyer != null) total += loyer;
-        if (autres != null) total += autres;
-        return total;
+        return chargesVariables + electricite + eau + salaires + loyer + (autres != null ? autres : 0.0);
     }
 }
