@@ -9,12 +9,14 @@ import org.example.sugerline.dto.response.IngredientResponseDTO;
 import org.example.sugerline.service.IngredientService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/ingredients")
+@PreAuthorize("hasRole('ADMINISTRATEUR')")
 @RequiredArgsConstructor
 public class IngredientController {
     private final IngredientService ingredientService;

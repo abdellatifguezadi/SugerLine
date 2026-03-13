@@ -18,5 +18,3 @@ public class RapportMensuelResponseDTO {
     private Double benefice;
     private Double tauxRentabilite;
 }
-
-
