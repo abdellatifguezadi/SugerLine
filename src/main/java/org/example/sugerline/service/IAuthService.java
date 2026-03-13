@@ -6,7 +6,7 @@ import org.example.sugerline.dto.response.AuthResponseDTO;
 
 public interface IAuthService {
 
-    AuthResponseDTO register(RegisterRequestDTO registerRequest);
+    AuthResponseDTO createUser(RegisterRequestDTO registerRequest);
 
     AuthResponseDTO login(LoginRequestDTO loginRequest);
 }
