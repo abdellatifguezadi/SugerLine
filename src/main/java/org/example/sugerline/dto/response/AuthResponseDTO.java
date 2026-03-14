@@ -11,9 +11,6 @@ import org.example.sugerline.enums.Role;
 @AllArgsConstructor
 @Builder
 public class AuthResponseDTO {
-    private String token;
-    @Builder.Default
-    private String type = "Bearer";
     private Long id;
     private String username;
     private String email;

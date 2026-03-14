@@ -27,4 +27,8 @@ public class Paiement {
     @OneToOne
     @JoinColumn(name = "commande_id")
     private Commande commande;
+    
+    @ManyToOne
+    @JoinColumn(name = "utilisateur_id")
+    private Utilisateur utilisateur;
 }
