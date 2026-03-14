@@ -32,24 +32,25 @@
       "name": "🔐 Authentication",
       "item": [
         {
-          "name": "Register - ADMINISTRATEUR",
+          "name": "Create User - ADMINISTRATEUR",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "if (pm.response.code === 201) {",
-                  "    var jsonData = pm.response.json();",
+                  "pm.test('Status code is 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Response has token', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('token');",
                   "    pm.collectionVariables.set('jwt_token', jsonData.token);",
-                  "    console.log('✅ Token saved: ' + jsonData.token);",
-                  "}"
+                  "    console.log('✅ Admin user created, token saved');",
+                  "});"
                 ],
                 "type": "text/javascript"
               }
             }
           ],
           "request": {
-            "auth": { "type": "noauth" },
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
@@ -57,32 +58,32 @@
               "raw": "{\n  \"username\": \"admin\",\n  \"email\": \"admin@sugarline.com\",\n  \"motDePasse\": \"admin123\",\n  \"fullName\": \"Administrateur Principal\",\n  \"role\": \"ADMINISTRATEUR\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/auth/register",
+              "raw": "{{base_url}}/api/auth/create-user",
               "host": ["{{base_url}}"],
-              "path": ["api", "auth", "register"]
+              "path": ["api", "auth", "create-user"]
             }
           },
           "response": []
         },
         {
-          "name": "Register - MAGASIN",
+          "name": "Create User - MAGASIN",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "if (pm.response.code === 201) {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.collectionVariables.set('jwt_token', jsonData.token);",
-                  "    console.log('✅ Token saved');",
-                  "}"
+                  "pm.test('Status code is 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Response has token', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('token');",
+                  "    console.log('✅ Magasin user created');",
+                  "});"
                 ],
                 "type": "text/javascript"
               }
             }
           ],
           "request": {
-            "auth": { "type": "noauth" },
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
@@ -90,17 +91,32 @@
               "raw": "{\n  \"username\": \"magasin1\",\n  \"email\": \"magasin@sugarline.com\",\n  \"motDePasse\": \"magasin123\",\n  \"fullName\": \"Responsable Magasin\",\n  \"role\": \"MAGASIN\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/auth/register",
+              "raw": "{{base_url}}/api/auth/create-user",
               "host": ["{{base_url}}"],
-              "path": ["api", "auth", "register"]
+              "path": ["api", "auth", "create-user"]
             }
           },
           "response": []
         },
         {
-          "name": "Register - CAISSIER",
+          "name": "Create User - CAISSIER",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Response has token', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('token');",
+                  "    console.log('✅ Caissier user created');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
-            "auth": { "type": "noauth" },
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
@@ -108,9 +124,9 @@
               "raw": "{\n  \"username\": \"caissier1\",\n  \"email\": \"caissier@sugarline.com\",\n  \"motDePasse\": \"caissier123\",\n  \"fullName\": \"Mohamed Caissier\",\n  \"role\": \"CAISSIER\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/auth/register",
+              "raw": "{{base_url}}/api/auth/create-user",
               "host": ["{{base_url}}"],
-              "path": ["api", "auth", "register"]
+              "path": ["api", "auth", "create-user"]
             }
           },
           "response": []
@@ -122,13 +138,16 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "if (pm.response.code === 200) {",
-                  "    var jsonData = pm.response.json();",
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Login successful and token saved', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('token');",
+                  "    pm.expect(jsonData).to.have.property('username');",
+                  "    pm.expect(jsonData).to.have.property('role');",
                   "    pm.collectionVariables.set('jwt_token', jsonData.token);",
                   "    console.log('✅ Login successful! Token saved.');",
-                  "    console.log('User: ' + jsonData.username);",
-                  "    console.log('Role: ' + jsonData.role);",
-                  "}"
+                  "    console.log('User: ' + jsonData.username + ' | Role: ' + jsonData.role);",
+                  "});"
                 ],
                 "type": "text/javascript"
               }
@@ -157,11 +176,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "if (pm.response.code === 200) {",
-                  "    var jsonData = pm.response.json();",
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Login successful', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('token');",
                   "    pm.collectionVariables.set('jwt_token', jsonData.token);",
-                  "    console.log('✅ Login successful! Token saved.');",
-                  "}"
+                  "    console.log('✅ Magasin login successful!');",
+                  "});"
                 ],
                 "type": "text/javascript"
               }
@@ -190,6 +211,23 @@
       "item": [
         {
           "name": "Create Ingrédient",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Ingredient created', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.expect(jsonData).to.have.property('nom');",
+                  "    console.log('✅ Ingredient created with ID: ' + jsonData.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
@@ -208,6 +246,22 @@
         },
         {
           "name": "Update Ingrédient",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Ingredient updated', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    console.log('✅ Ingredient updated: ' + jsonData.nom);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "PUT",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
@@ -225,6 +279,22 @@
         },
         {
           "name": "Get All Ingrédients",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response is array', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "    console.log('✅ Found ' + jsonData.length + ' ingredients');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -238,6 +308,22 @@
         },
         {
           "name": "Get Ingrédient By ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Ingredient found', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.expect(jsonData).to.have.property('nom');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -256,6 +342,23 @@
       "item": [
         {
           "name": "Create Produit",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Produit created', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.expect(jsonData).to.have.property('nom');",
+                  "    console.log('✅ Produit created: ' + jsonData.nom);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
@@ -273,6 +376,22 @@
         },
         {
           "name": "Update Produit",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Produit updated', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    console.log('✅ Produit updated: ' + jsonData.nom);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "PUT",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
@@ -290,6 +409,23 @@
         },
         {
           "name": "Get All Produits",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Paginated response', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('content');",
+                  "    pm.expect(jsonData).to.have.property('totalElements');",
+                  "    console.log('✅ Found ' + jsonData.totalElements + ' produits');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -311,6 +447,22 @@
         },
         {
           "name": "Get Produit By ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Produit found', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.expect(jsonData).to.have.property('nom');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -324,6 +476,18 @@
         },
         {
           "name": "Delete Produit",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 204', () => pm.response.to.have.status(204));",
+                  "console.log('✅ Produit deleted successfully');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "DELETE",
             "header": [],
@@ -342,6 +506,23 @@
       "item": [
         {
           "name": "Create Commande",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Commande created', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.expect(jsonData).to.have.property('statut');",
+                  "    console.log('✅ Commande created with ID: ' + jsonData.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
@@ -360,6 +541,22 @@
         },
         {
           "name": "Update Commande",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Commande updated', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    console.log('✅ Commande updated');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "PUT",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
@@ -378,6 +575,22 @@
         },
         {
           "name": "Get All Commandes (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Paginated response', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('content');",
+                  "    pm.expect(jsonData).to.have.property('totalElements');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -402,6 +615,21 @@
         },
         {
           "name": "Get My Commandes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('My commandes retrieved', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('content');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -425,6 +653,22 @@
         },
         {
           "name": "Get Commande By ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Commande found', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.expect(jsonData).to.have.property('statut');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -439,6 +683,22 @@
         },
         {
           "name": "Annuler Commande (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Commande cancelled', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.statut).to.eql('ANNULEE');",
+                  "    console.log('✅ Commande cancelled');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "DELETE",
             "header": [],
@@ -453,6 +713,22 @@
         },
         {
           "name": "Livrer Commande (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Commande delivered', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.statut).to.eql('LIVREE');",
+                  "    console.log('✅ Commande status changed to LIVREE');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "PATCH",
             "header": [],
@@ -472,6 +748,23 @@
       "item": [
         {
           "name": "Create Paiement",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Paiement created', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.expect(jsonData).to.have.property('statut');",
+                  "    console.log('✅ Paiement created with ID: ' + jsonData.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
@@ -490,6 +783,22 @@
         },
         {
           "name": "Accepter Paiement (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Paiement accepted', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.statut).to.eql('ACCEPTE');",
+                  "    console.log('✅ Paiement accepted');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "PATCH",
             "header": [],
@@ -504,6 +813,22 @@
         },
         {
           "name": "Annuler Paiement (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Paiement cancelled', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.statut).to.eql('ANNULE');",
+                  "    console.log('✅ Paiement cancelled');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "PATCH",
             "header": [],
@@ -518,6 +843,22 @@
         },
         {
           "name": "Get Paiement By ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Paiement found', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.expect(jsonData).to.have.property('statut');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -532,6 +873,21 @@
         },
         {
           "name": "Get All Paiements (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Paginated response', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('content');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -551,6 +907,21 @@
         },
         {
           "name": "Get My Paiements",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('My paiements retrieved', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('content');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -575,6 +946,23 @@
       "item": [
         {
           "name": "Create Charges",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Charges created', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.expect(jsonData).to.have.property('total');",
+                  "    console.log('✅ Charges created for month: ' + jsonData.mois + '/' + jsonData.annee);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
@@ -593,6 +981,22 @@
         },
         {
           "name": "Update Charges",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Charges updated', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    console.log('✅ Charges updated');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "PUT",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
@@ -611,6 +1015,21 @@
         },
         {
           "name": "Get All Charges",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Paginated response', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('content');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -634,6 +1053,22 @@
         },
         {
           "name": "Get Charges By ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Charges found', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.expect(jsonData).to.have.property('total');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -648,6 +1083,18 @@
         },
         {
           "name": "Delete Charges",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 204', () => pm.response.to.have.status(204));",
+                  "console.log('✅ Charges deleted successfully');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "DELETE",
             "header": [],
@@ -663,10 +1110,300 @@
       ]
     },
     {
+      "name": "📊 Rapports Mensuels",
+      "item": [
+        {
+          "name": "Generer Rapport",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Rapport generated successfully', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.expect(jsonData).to.have.property('mois');",
+                  "    pm.expect(jsonData).to.have.property('annee');",
+                  "    pm.expect(jsonData).to.have.property('beneficeNet');",
+                  "    console.log('✅ Rapport generated for: ' + jsonData.mois + '/' + jsonData.annee);",
+                  "    console.log('Benefice Net: ' + jsonData.beneficeNet);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/rapports/generer?mois=3&annee=2026",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rapports", "generer"],
+              "query": [
+                { "key": "mois", "value": "3" },
+                { "key": "annee", "value": "2026" }
+              ],
+              "description": "ADMINISTRATEUR seulement - mois: 1-12, annee: >= 2020"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Rapport By ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Rapport retrieved', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.expect(jsonData).to.have.property('beneficeNet');",
+                  "    console.log('✅ Rapport ID: ' + jsonData.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/rapports/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rapports", "1"],
+              "description": "ADMINISTRATEUR seulement"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Rapport By Mois/Annee",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Rapport found for specific month/year', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('mois');",
+                  "    pm.expect(jsonData).to.have.property('annee');",
+                  "    pm.expect(jsonData.mois).to.eql(3);",
+                  "    pm.expect(jsonData.annee).to.eql(2026);",
+                  "    console.log('✅ Rapport found for: ' + jsonData.mois + '/' + jsonData.annee);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/rapports/mois/3/annee/2026",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rapports", "mois", "3", "annee", "2026"],
+              "description": "ADMINISTRATEUR seulement"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Rapports",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Paginated response received', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('content');",
+                  "    pm.expect(jsonData).to.have.property('totalElements');",
+                  "    pm.expect(jsonData).to.have.property('totalPages');",
+                  "    console.log('✅ Found ' + jsonData.totalElements + ' rapports');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/rapports?page=0&size=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rapports"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ],
+              "description": "ADMINISTRATEUR seulement"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Rapport",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 204', () => pm.response.to.have.status(204));",
+                  "console.log('✅ Rapport deleted successfully');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/rapports/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rapports", "1"],
+              "description": "ADMINISTRATEUR seulement"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Test Auth Endpoint",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Admin role confirmed', () => {",
+                  "    pm.expect(pm.response.text()).to.include('ADMIN');",
+                  "    console.log('✅ Authentication test passed');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/rapports/test-auth",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rapports", "test-auth"],
+              "description": "ADMINISTRATEUR seulement - Test authentication"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📊 Statistiques",
+      "item": [
+        {
+          "name": "Get Statistiques Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Admin statistics retrieved', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('totalCommandes');",
+                  "    pm.expect(jsonData).to.have.property('revenuTotal');",
+                  "    pm.expect(jsonData).to.have.property('beneficeNet');",
+                  "    pm.expect(jsonData).to.have.property('revenusParMois');",
+                  "    pm.expect(jsonData).to.have.property('topProduits');",
+                  "    console.log('✅ Admin statistics loaded');",
+                  "    console.log('Total Commandes: ' + jsonData.totalCommandes);",
+                  "    console.log('Revenu Total: ' + jsonData.revenuTotal + ' DH');",
+                  "    console.log('Benefice Net: ' + jsonData.beneficeNet + ' DH');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/statistiques/admin",
+              "host": ["{{base_url}}"],
+              "path": ["api", "statistiques", "admin"],
+              "description": "ADMINISTRATEUR seulement - Statistiques complètes pour dashboard admin avec données pour Chart.js"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Mes Statistiques",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('User statistics retrieved', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('totalMesCommandes');",
+                  "    pm.expect(jsonData).to.have.property('montantTotalDepense');",
+                  "    pm.expect(jsonData).to.have.property('mesCommandesParMois');",
+                  "    pm.expect(jsonData).to.have.property('mesProduitsPreferes');",
+                  "    console.log('✅ User statistics loaded');",
+                  "    console.log('Total Mes Commandes: ' + jsonData.totalMesCommandes);",
+                  "    console.log('Montant Total Depense: ' + jsonData.montantTotalDepense + ' DH');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/statistiques/mes-statistiques",
+              "host": ["{{base_url}}"],
+              "path": ["api", "statistiques", "mes-statistiques"],
+              "description": "Tout utilisateur authentifié - Statistiques personnelles avec données pour Chart.js"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "🧪 Test Endpoints",
       "item": [
         {
           "name": "Public Endpoint (No Auth)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Public access works', () => {",
+                  "    pm.expect(pm.response.text()).to.include('public');",
+                  "    console.log('✅ Public endpoint accessible');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "auth": { "type": "noauth" },
             "method": "GET",
@@ -681,6 +1418,21 @@
         },
         {
           "name": "User Endpoint (Any Auth)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('User authenticated', () => {",
+                  "    pm.expect(pm.response.text()).to.include('user');",
+                  "    console.log('✅ User endpoint accessible');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -694,6 +1446,21 @@
         },
         {
           "name": "Admin Endpoint",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Admin access confirmed', () => {",
+                  "    pm.expect(pm.response.text()).to.include('admin');",
+                  "    console.log('✅ Admin endpoint accessible');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
