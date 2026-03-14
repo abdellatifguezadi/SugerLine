@@ -1,0 +1,26 @@
+services:
+  sugerline-app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/sugarline_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=
+      - JWT_SECRET=U3VnYXJMaW5lU2VjcmV0S2V5Rm9yQXV0aGVudGljYXRpb25BbmRBdXRob3JpemF0aW9uMjAyNVlvdWNvZGVOYWRvckFiZGVsbGF0aWZHdWV6YWRp
+      - JWT_EXPIRATION=86400000
+    depends_on:
+      - mysql-db
+
+  mysql-db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_DATABASE=sugarline_db
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:
