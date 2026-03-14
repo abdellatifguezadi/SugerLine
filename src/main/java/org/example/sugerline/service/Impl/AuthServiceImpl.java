@@ -1,5 +1,7 @@
 package org.example.sugerline.service.Impl;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.sugerline.dto.request.LoginRequestDTO;
 import org.example.sugerline.dto.request.RegisterRequestDTO;
@@ -28,7 +30,7 @@ public class AuthServiceImpl implements IAuthService {
     private final UtilisateurMapper utilisateurMapper;
 
     @Override
-    public AuthResponseDTO createUser(RegisterRequestDTO registerRequest) {
+    public AuthResponseDTO createUser(RegisterRequestDTO registerRequest, HttpServletResponse response) {
         if (utilisateurRepository.existsByUsername(registerRequest.getUsername())) {
             throw new ResourceNotFoundException("Username déjà utilisé");
         }
@@ -42,14 +44,14 @@ public class AuthServiceImpl implements IAuthService {
 
         Utilisateur savedUser = utilisateurRepository.save(utilisateur);
 
-        AuthResponseDTO response = utilisateurMapper.toAuthResponseDTO(savedUser);
-        response.setToken(jwtUtil.generateToken(savedUser.getUsername(), savedUser.getRole().name()));
+        String token = jwtUtil.generateToken(savedUser.getUsername(), savedUser.getRole().name());
+        addTokenToCookie(response, token);
 
-        return response;
+        return utilisateurMapper.toAuthResponseDTO(savedUser);
     }
 
     @Override
-    public AuthResponseDTO login(LoginRequestDTO loginRequest) {
+    public AuthResponseDTO login(LoginRequestDTO loginRequest, HttpServletResponse response) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getUsername(),
@@ -60,9 +62,18 @@ public class AuthServiceImpl implements IAuthService {
         Utilisateur utilisateur = utilisateurRepository.findByUsername(loginRequest.getUsername())
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
 
-        AuthResponseDTO response = utilisateurMapper.toAuthResponseDTO(utilisateur);
-        response.setToken(jwtUtil.generateToken(utilisateur.getUsername(), utilisateur.getRole().name()));
+        String token = jwtUtil.generateToken(utilisateur.getUsername(), utilisateur.getRole().name());
+        addTokenToCookie(response, token);
 
-        return response;
+        return utilisateurMapper.toAuthResponseDTO(utilisateur);
+    }
+
+    private void addTokenToCookie(HttpServletResponse response, String token) {
+        Cookie cookie = new Cookie("token", token);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(24 * 60 * 60);
+        response.addCookie(cookie);
     }
 }

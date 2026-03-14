@@ -1,5 +1,6 @@
 package org.example.sugerline.controller;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.sugerline.dto.request.LoginRequestDTO;
@@ -19,10 +20,10 @@ public class AuthController {
     private final IAuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDTO loginRequest) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDTO loginRequest, HttpServletResponse response) {
         try {
-            AuthResponseDTO response = authService.login(loginRequest);
-            return ResponseEntity.ok(response);
+            AuthResponseDTO authResponse = authService.login(loginRequest, response);
+            return ResponseEntity.ok(authResponse);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("Username ou mot de passe incorrect");
@@ -31,10 +32,10 @@ public class AuthController {
 
     @PostMapping("/create-user")
     @PreAuthorize("hasRole('ADMINISTRATEUR')")
-    public ResponseEntity<?> createUser(@Valid @RequestBody RegisterRequestDTO registerRequest) {
+    public ResponseEntity<?> createUser(@Valid @RequestBody RegisterRequestDTO registerRequest, HttpServletResponse response) {
         try {
-            AuthResponseDTO response = authService.createUser(registerRequest);
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            AuthResponseDTO authResponse = authService.createUser(registerRequest, response);
+            return ResponseEntity.status(HttpStatus.CREATED).body(authResponse);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
