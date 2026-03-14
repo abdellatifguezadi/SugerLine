@@ -8,8 +8,10 @@ import org.example.sugerline.dto.response.ProduitResponseDTO;
 import org.example.sugerline.entity.Ingredient;
 import org.example.sugerline.entity.IngredientProduit;
 import org.example.sugerline.entity.Produit;
+import org.example.sugerline.exception.InvalidOperationException;
 import org.example.sugerline.exception.ResourceNotFoundException;
 import org.example.sugerline.mapper.ProduitMapper;
+import org.example.sugerline.repository.CommandeLineRepository;
 import org.example.sugerline.repository.IngredientRepository;
 import org.example.sugerline.repository.ProduitRepository;
 import org.example.sugerline.specification.SpecificationBuilder;
@@ -30,6 +32,7 @@ public class ProduitServiceImpl implements ProduitService {
     private final ProduitMapper produitMapper;
     private final ProduitRepository produitRepository;
     private final IngredientRepository ingredientRepository;
+    private final CommandeLineRepository commandeLineRepository;
 
     @Override
     @Transactional
@@ -101,6 +104,11 @@ public class ProduitServiceImpl implements ProduitService {
     public void deleteProduit(Long id) {
         Produit produit = produitRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Produit not found with id: " + id));
+        
+        if (commandeLineRepository.existsByProduitId(id)) {
+            throw new InvalidOperationException("Impossible de supprimer ce produit car il est utilisé dans une ou plusieurs commandes");
+        }
+        
         produitRepository.delete(produit);
     }
 
