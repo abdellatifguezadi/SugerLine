@@ -36,5 +36,5 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: |
           docker compose build
-          docker tag sugerline-app ${{ secrets.DOCKERHUB_USERNAME }}/sugerline-springboot-api-app:latest
+          docker tag sugerline-app:latest ${{ secrets.DOCKERHUB_USERNAME }}/sugerline-springboot-api-app:latest
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/sugerline-springboot-api-app:latest
