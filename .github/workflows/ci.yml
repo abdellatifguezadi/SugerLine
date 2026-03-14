@@ -1,0 +1,40 @@
+name: tricol springboot ci
+
+on:
+  push:
+    branches:
+      - "**" # Triggers on push to any branch
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        if: github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        if: github.ref == 'refs/heads/main'
+        run: |
+          docker compose build
+          docker tag sugerline-app ${{ secrets.DOCKERHUB_USERNAME }}/sugerline-springboot-api-app:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/sugerline-springboot-api-app:latest
