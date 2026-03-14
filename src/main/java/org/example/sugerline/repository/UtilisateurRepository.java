@@ -1,6 +1,7 @@
 package org.example.sugerline.repository;
 
 import org.example.sugerline.entity.Utilisateur;
+import org.example.sugerline.enums.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,4 +13,6 @@ public interface UtilisateurRepository extends JpaRepository<Utilisateur, Long> 
     Optional<Utilisateur> findByEmail(String email);
     Boolean existsByUsername(String username);
     Boolean existsByEmail(String email);
+    
+    Long countByRole(Role role);
 }
