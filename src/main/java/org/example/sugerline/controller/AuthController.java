@@ -20,26 +20,15 @@ public class AuthController {
     private final IAuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDTO loginRequest, HttpServletResponse response) {
-        try {
-            AuthResponseDTO authResponse = authService.login(loginRequest, response);
-            return ResponseEntity.ok(authResponse);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Username ou mot de passe incorrect");
-        }
-
-
+    public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequest, HttpServletResponse response) {
+        AuthResponseDTO authResponse = authService.login(loginRequest, response);
+        return ResponseEntity.ok(authResponse);
     }
 
     @PostMapping("/create-user")
     @PreAuthorize("hasRole('ADMINISTRATEUR')")
-    public ResponseEntity<?> createUser(@Valid @RequestBody RegisterRequestDTO registerRequest, HttpServletResponse response) {
-        try {
-            AuthResponseDTO authResponse = authService.createUser(registerRequest, response);
-            return ResponseEntity.status(HttpStatus.CREATED).body(authResponse);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<AuthResponseDTO> createUser(@Valid @RequestBody RegisterRequestDTO registerRequest, HttpServletResponse response) {
+        AuthResponseDTO authResponse = authService.createUser(registerRequest, response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(authResponse);
     }
 }
