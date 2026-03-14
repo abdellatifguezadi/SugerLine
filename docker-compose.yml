@@ -1,5 +1,6 @@
 services:
   sugerline-app:
+    image: sugerline-app:latest
     build: .
     ports:
       - "8080:8080"
