@@ -79,4 +79,11 @@ public class AuthServiceImpl implements IAuthService {
         cookie.setMaxAge(24 * 60 * 60);
         response.addCookie(cookie);
     }
+
+    @Override
+    public AuthResponseDTO getCurrentUser(String username) {
+        Utilisateur utilisateur = utilisateurRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
+        return utilisateurMapper.toAuthResponseDTO(utilisateur);
+    }
 }

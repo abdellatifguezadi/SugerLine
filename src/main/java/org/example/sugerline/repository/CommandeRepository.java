@@ -33,7 +33,7 @@ public interface CommandeRepository extends JpaRepository<Commande , Long>, JpaS
            "GROUP BY p.id, p.nom " +
            "ORDER BY total DESC")
     List<Object[]> findTopProduits();
-    
+
     @Query("SELECT p.nom, SUM(cl.quantite) as total FROM CommandeLine cl " +
            "JOIN cl.produit p " +
            "JOIN cl.commande c " +
@@ -41,4 +41,16 @@ public interface CommandeRepository extends JpaRepository<Commande , Long>, JpaS
            "GROUP BY p.id, p.nom " +
            "ORDER BY total DESC")
     List<Object[]> findTopProduitsByUtilisateur(@Param("utilisateur") Utilisateur utilisateur);
+
+    @Query("SELECT SUM(cl.quantite * prod.prixVente) FROM CommandeLine cl " +
+           "JOIN cl.produit prod " +
+           "JOIN cl.commande c " +
+           "WHERE c.statut = :statut")
+    Double sumRevenueByStatut(@Param("statut") StatutCommande statut);
+
+    @Query("SELECT SUM(cl.quantite * prod.prixVente) FROM CommandeLine cl " +
+           "JOIN cl.produit prod " +
+           "JOIN cl.commande c " +
+           "WHERE c.statut = :statut AND MONTH(c.date) = :mois AND YEAR(c.date) = :annee")
+    Double sumRevenueByMoisAndAnnee(@Param("statut") StatutCommande statut, @Param("mois") Integer mois, @Param("annee") Integer annee);
 }

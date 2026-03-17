@@ -16,24 +16,19 @@ public interface PaiementRepository extends JpaRepository<Paiement, Long>, JpaSp
     
     Long countByStatut(StatutPaiement statut);
     
-    Long countByUtilisateur(Utilisateur utilisateur);
-    
-    Long countByUtilisateurAndStatut(Utilisateur utilisateur, StatutPaiement statut);
-    
-    @Query("SELECT SUM(p.montant) FROM Paiement p WHERE p.statut = :statut")
-    Double sumMontantByStatut(@Param("statut") StatutPaiement statut);
-    
-    @Query("SELECT SUM(p.montant) FROM Paiement p WHERE p.statut = :statut AND p.date BETWEEN :debut AND :fin")
-    Double sumMontantByStatutAndDateBetween(@Param("statut") StatutPaiement statut, 
-                                             @Param("debut") LocalDateTime debut, 
-                                             @Param("fin") LocalDateTime fin);
-    
-    @Query("SELECT SUM(p.montant) FROM Paiement p WHERE p.utilisateur = :utilisateur AND p.statut = :statut")
-    Double sumMontantByUtilisateurAndStatut(@Param("utilisateur") Utilisateur utilisateur, 
+    @Query("SELECT COUNT(p) FROM Paiement p WHERE p.commande.utilisateur = :utilisateur")
+    Long countByUtilisateur(@Param("utilisateur") Utilisateur utilisateur);
+
+    @Query("SELECT COUNT(p) FROM Paiement p WHERE p.commande.utilisateur = :utilisateur AND p.statut = :statut")
+    Long countByUtilisateurAndStatut(@Param("utilisateur") Utilisateur utilisateur, @Param("statut") StatutPaiement statut);
+
+
+    @Query("SELECT SUM(p.montant) FROM Paiement p WHERE p.commande.utilisateur = :utilisateur AND p.statut = :statut")
+    Double sumMontantByUtilisateurAndStatut(@Param("utilisateur") Utilisateur utilisateur,
                                              @Param("statut") StatutPaiement statut);
-    
-    @Query("SELECT SUM(p.montant) FROM Paiement p WHERE p.utilisateur = :utilisateur AND p.statut = :statut AND p.date BETWEEN :debut AND :fin")
-    Double sumMontantByUtilisateurAndStatutAndDateBetween(@Param("utilisateur") Utilisateur utilisateur, 
+
+    @Query("SELECT SUM(p.montant) FROM Paiement p WHERE p.commande.utilisateur = :utilisateur AND p.statut = :statut AND p.date BETWEEN :debut AND :fin")
+    Double sumMontantByUtilisateurAndStatutAndDateBetween(@Param("utilisateur") Utilisateur utilisateur,
                                                             @Param("statut") StatutPaiement statut,
                                                             @Param("debut") LocalDateTime debut, 
                                                             @Param("fin") LocalDateTime fin);

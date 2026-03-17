@@ -45,15 +45,17 @@ public class RapportMensuelServiceImpl implements RapportMensuelService {
         Double benefice = arrondir(chiffreAffaires - coutTotal);
         Double tauxRentabilite = arrondir(calculerTauxRentabilite(benefice, coutTotal));
 
+        // find the ChargesMensuelles entity for this month/year (if any)
+        ChargesMensuelles chargesEntity = chargesRepository.findByMoisAndAnnee(mois, annee).orElse(null);
+
         RapportMensuel rapport = RapportMensuel.builder()
                 .mois(mois)
                 .annee(annee)
                 .chiffreAffaires(chiffreAffaires)
-                .coutProduction(coutProduction)
-                .chargesFixes(chargesFixes)
                 .coutTotal(coutTotal)
                 .benefice(benefice)
                 .tauxRentabilite(tauxRentabilite)
+                .charges(chargesEntity)
                 .build();
 
         return rapportMapper.toResponseDTO(rapportRepository.save(rapport));

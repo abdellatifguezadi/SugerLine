@@ -25,14 +25,6 @@ public class RapportMensuelRequestDTO {
     @Min(value = 0, message = "Le chiffre d'affaires doit être positif")
     private Double chiffreAffaires;
 
-    @NotNull(message = "Le coût de production est obligatoire")
-    @Min(value = 0, message = "Le coût de production doit être positif")
-    private Double coutProduction;
-
-    @NotNull(message = "Les charges fixes sont obligatoires")
-    @Min(value = 0, message = "Les charges fixes doivent être positives")
-    private Double chargesFixes;
-
     @NotNull(message = "Le coût total est obligatoire")
     @Min(value = 0, message = "Le coût total doit être positif")
     private Double coutTotal;

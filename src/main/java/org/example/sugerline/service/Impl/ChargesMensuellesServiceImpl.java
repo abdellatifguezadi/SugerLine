@@ -13,6 +13,7 @@ import org.example.sugerline.exception.ResourceNotFoundException;
 import org.example.sugerline.mapper.ChargesMensuellesMapper;
 import org.example.sugerline.repository.ChargesMensuellesRepository;
 import org.example.sugerline.repository.CommandeRepository;
+import org.example.sugerline.repository.RapportMensuelRepository;
 import org.example.sugerline.repository.UtilisateurRepository;
 import org.example.sugerline.service.ChargesMensuellesService;
 import org.example.sugerline.specification.SpecificationBuilder;
@@ -33,6 +34,7 @@ public class ChargesMensuellesServiceImpl implements ChargesMensuellesService {
     private final ChargesMensuellesMapper chargesMapper;
     private final UtilisateurRepository utilisateurRepository;
     private final CommandeRepository commandeRepository;
+    private final RapportMensuelRepository rapportMensuelRepository;
 
     @Override
     @Transactional
@@ -89,10 +91,17 @@ public class ChargesMensuellesServiceImpl implements ChargesMensuellesService {
     @Override
     @Transactional
     public void deleteCharges(Long id) {
-        if (!chargesRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Charges non trouvées avec l'ID: " + id);
+        ChargesMensuelles charges = chargesRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Charges non trouvées avec l'ID: " + id));
+
+        if (rapportMensuelRepository.existsByChargesId(id)) {
+            throw new InvalidOperationException(
+                "Impossible de supprimer ces charges car elles sont utilisées dans un rapport mensuel (" +
+                charges.getMois() + "/" + charges.getAnnee() + ")."
+            );
         }
-        chargesRepository.deleteById(id);
+
+        chargesRepository.delete(charges);
     }
 
     @Override

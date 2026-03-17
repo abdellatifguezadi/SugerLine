@@ -10,4 +10,6 @@ public interface IAuthService {
     AuthResponseDTO createUser(RegisterRequestDTO registerRequest, HttpServletResponse response);
 
     AuthResponseDTO login(LoginRequestDTO loginRequest, HttpServletResponse response);
+
+    AuthResponseDTO getCurrentUser(String username);
 }

@@ -10,6 +10,8 @@ import org.example.sugerline.service.IAuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,5 +32,12 @@ public class AuthController {
     public ResponseEntity<AuthResponseDTO> createUser(@Valid @RequestBody RegisterRequestDTO registerRequest, HttpServletResponse response) {
         AuthResponseDTO authResponse = authService.createUser(registerRequest, response);
         return ResponseEntity.status(HttpStatus.CREATED).body(authResponse);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<AuthResponseDTO> getCurrentUser(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        return ResponseEntity.ok(authService.getCurrentUser(userDetails.getUsername()));
     }
 }
