@@ -17,8 +17,6 @@ public class IngredientRequestDTO {
     @Size(min = 2, max = 100, message = "Le nom de l'ingrédient doit contenir entre 2 et 100 caractères")
     private String nom;
 
-    @NotBlank(message = "La quantité est obligatoire")
-    private String quantite;
 
     @NotBlank(message = "L'unité est obligatoire")
     private String unite;

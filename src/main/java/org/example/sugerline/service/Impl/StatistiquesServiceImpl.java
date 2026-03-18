@@ -55,8 +55,7 @@ public class StatistiquesServiceImpl implements StatistiquesService {
 
         Double revenuTotal = commandeRepository.sumRevenueByStatut(StatutCommande.LIVREE);
         if (revenuTotal == null) {
-            Double rapportTotal = rapportMensuelRepository.sumAllChiffreAffaires();
-            revenuTotal = rapportTotal != null ? rapportTotal : 0.0;
+            revenuTotal = 0.00;
         }
 
         Double revenuMoisActuel = commandeRepository.sumRevenueByMoisAndAnnee(StatutCommande.LIVREE, debutMoisActuel.getMonthValue(), debutMoisActuel.getYear());
@@ -78,19 +77,13 @@ public class StatistiquesServiceImpl implements StatistiquesService {
 
         Double tauxCroissanceRevenu = calculerTauxCroissance(revenuMoisPrecedent, revenuMoisActuel);
 
-        long commandesMoisActuelCount = commandeRepository.countByDateBetween(debutMoisActuel, finMoisActuel);
-        long commandesMoisPrecedentCount = commandeRepository.countByDateBetween(debutMoisPrecedent, finMoisPrecedent);
-        Double tauxCroissanceCommandes = calculerTauxCroissance((double)commandesMoisPrecedentCount, (double)commandesMoisActuelCount);
 
         Double tauxConversionPaiement = totalPaiements > 0
             ? ((double) totalPaiementsAcceptes / (double) totalPaiements) * 100
             : 0.0;
 
-        List<ChartDataDTO> revenusParMois = getRevenusParMois();
         List<ChartDataDTO> commandesParStatut = getCommandesParStatut();
         List<ChartDataDTO> paiementsParStatut = getPaiementsParStatut();
-        List<ChartDataDTO> beneficesParMois = getBeneficesParMois();
-        List<ChartDataDTO> chargesParMois = getChargesParMois();
         List<ChartDataDTO> utilisateursParRole = getUtilisateursParRole();
 
         return StatistiquesAdminResponseDTO.builder()
@@ -105,19 +98,15 @@ public class StatistiquesServiceImpl implements StatistiquesService {
                 .totalUtilisateurs(totalUtilisateurs)
                 .totalProduits(totalProduits)
                 .totalIngredients(totalIngredients)
-                .revenuTotal(revenuTotal)
+                .revenuTotal(revenuTotal != null ? revenuTotal : 0.0)
                 .revenuMoisActuel(revenuMoisActuel)
                 .revenuMoisPrecedent(revenuMoisPrecedent)
                 .beneficeNet(beneficeNet)
                 .chargesTotal(chargesTotal != null ? chargesTotal : 0.0)
-                .revenusParMois(revenusParMois)
                 .commandesParStatut(commandesParStatut)
                 .paiementsParStatut(paiementsParStatut)
-                .beneficesParMois(beneficesParMois)
-                .chargesParMois(chargesParMois)
                 .utilisateursParRole(utilisateursParRole)
                 .tauxCroissanceRevenu(tauxCroissanceRevenu)
-                .tauxCroissanceCommandes(tauxCroissanceCommandes)
                 .tauxConversionPaiement(tauxConversionPaiement)
                 .build();
     }
@@ -182,23 +171,6 @@ public class StatistiquesServiceImpl implements StatistiquesService {
                 .build();
     }
 
-    private List<ChartDataDTO> getRevenusParMois() {
-        List<ChartDataDTO> data = new ArrayList<>();
-        LocalDate now = LocalDate.now();
-
-        for (int i = 11; i >= 0; i--) {
-            YearMonth yearMonth = YearMonth.from(now.minusMonths(i));
-            Double revenu = commandeRepository.sumRevenueByMoisAndAnnee(StatutCommande.LIVREE, yearMonth.getMonthValue(), yearMonth.getYear());
-            if (revenu == null) revenu = 0.0;
-
-            data.add(ChartDataDTO.builder()
-                    .label(yearMonth.getMonth().getDisplayName(TextStyle.SHORT, Locale.FRENCH) + " " + yearMonth.getYear())
-                    .value(revenu)
-                    .build());
-        }
-        return data;
-    }
-
 
 
     private List<ChartDataDTO> getCommandesParStatut() {
@@ -236,41 +208,9 @@ public class StatistiquesServiceImpl implements StatistiquesService {
     }
 
 
-    private List<ChartDataDTO> getBeneficesParMois() {
-        List<ChartDataDTO> data = new ArrayList<>();
-        LocalDate now = LocalDate.now();
 
-        for (int i = 11; i >= 0; i--) {
-            YearMonth yearMonth = YearMonth.from(now.minusMonths(i));
 
-            Double benefice = rapportMensuelRepository.findBeneficeByMoisAndAnnee(
-                    yearMonth.getMonthValue(), yearMonth.getYear());
 
-            data.add(ChartDataDTO.builder()
-                    .label(yearMonth.getMonth().getDisplayName(TextStyle.SHORT, Locale.FRENCH) + " " + yearMonth.getYear())
-                    .value(benefice != null ? benefice : 0.0)
-                    .build());
-        }
-        return data;
-    }
-
-    private List<ChartDataDTO> getChargesParMois() {
-        List<ChartDataDTO> data = new ArrayList<>();
-        LocalDate now = LocalDate.now();
-
-        for (int i = 11; i >= 0; i--) {
-            YearMonth yearMonth = YearMonth.from(now.minusMonths(i));
-
-            Double charges = chargesMensuellesRepository.findTotalByMoisAndAnnee(
-                    yearMonth.getMonthValue(), yearMonth.getYear());
-
-            data.add(ChartDataDTO.builder()
-                    .label(yearMonth.getMonth().getDisplayName(TextStyle.SHORT, Locale.FRENCH) + " " + yearMonth.getYear())
-                    .value(charges != null ? charges : 0.0)
-                    .build());
-        }
-        return data;
-    }
 
     private List<ChartDataDTO> getUtilisateursParRole() {
         return Arrays.asList(

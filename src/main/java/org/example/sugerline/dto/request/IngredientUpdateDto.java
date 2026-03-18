@@ -18,8 +18,6 @@ public class IngredientUpdateDto {
     private String nom;
 
 
-    private String quantite;
-
 
     private String unite;
 
