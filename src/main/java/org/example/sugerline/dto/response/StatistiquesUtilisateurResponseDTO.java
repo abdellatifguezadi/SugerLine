@@ -23,17 +23,13 @@ public class StatistiquesUtilisateurResponseDTO {
     private Long totalPaiementsAcceptes;
     private Long totalPaiementsAnnules;
     
-    private Double montantTotalDepense;
     private Double montantMoisActuel;
     private Double montantMoisPrecedent;
-    private Double montantEnAttente;
-    
-    private List<ChartDataDTO> mesCommandesParMois;
-    private List<ChartDataDTO> mesDepensesParMois;
+
+
     private List<ChartDataDTO> mesCommandesParStatut;
     private List<ChartDataDTO> mesPaiementsParStatut;
-    private List<ChartDataDTO> mesProduitsPreferes;
-    
+
     private Double tauxCroissanceDepenses;
-    private Double moyenneParCommande;
+
 }

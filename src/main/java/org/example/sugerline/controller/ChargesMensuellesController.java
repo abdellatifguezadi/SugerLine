@@ -46,13 +46,7 @@ public class ChargesMensuellesController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<ChargesMensuellesResponseDTO>> getAllCharges(
-            @RequestParam(required = false) Integer mois,
-            @RequestParam(required = false) Integer annee,
-            @RequestParam(required = false) Double minTotal,
-            @RequestParam(required = false) Double maxTotal,
-            @RequestParam(required = false) String utilisateurUsername,
-            Pageable pageable) {
-        return ResponseEntity.ok(chargesService.getAllCharges(mois, annee, minTotal, maxTotal, utilisateurUsername, pageable));
+    public ResponseEntity<Page<ChargesMensuellesResponseDTO>> getAllCharges(Pageable pageable) {
+        return ResponseEntity.ok(chargesService.getAllCharges(pageable));
     }
 }

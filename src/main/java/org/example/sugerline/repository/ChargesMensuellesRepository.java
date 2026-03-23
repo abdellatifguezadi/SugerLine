@@ -15,7 +15,6 @@ public interface ChargesMensuellesRepository extends JpaRepository<ChargesMensue
     @Query("SELECT SUM(c.total) FROM ChargesMensuelles c")
     Double sumAllCharges();
     
-    @Query("SELECT c.total FROM ChargesMensuelles c WHERE c.mois = :mois AND c.annee = :annee")
-    Double findTotalByMoisAndAnnee(@Param("mois") Integer mois, @Param("annee") Integer annee);
+
 }
 

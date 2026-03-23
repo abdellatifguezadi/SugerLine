@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -32,6 +33,10 @@ public class RapportMensuelServiceImpl implements RapportMensuelService {
     @Override
     @Transactional
     public RapportMensuelResponseDTO genererRapport(Integer mois, Integer annee) {
+        if (isFutureMonthYear(mois, annee)) {
+            throw new InvalidOperationException("Impossible de générer un rapport pour une date future : " + mois + "/" + annee);
+        }
+
         if (rapportRepository.existsByMoisAndAnnee(mois, annee)) {
             throw new InvalidOperationException("Un rapport existe déjà pour " + mois + "/" + annee);
         }
@@ -60,6 +65,16 @@ public class RapportMensuelServiceImpl implements RapportMensuelService {
         return rapportMapper.toResponseDTO(rapportRepository.save(rapport));
     }
 
+    private boolean isFutureMonthYear(Integer mois, Integer annee) {
+        if (mois == null || annee == null) return false;
+        LocalDate now = LocalDate.now();
+        int currentYear = now.getYear();
+        int currentMonth = now.getMonthValue();
+        if (annee > currentYear) return true;
+        if (annee.equals(currentYear) && mois > currentMonth) return true;
+        return false;
+    }
+
     @Override
     public RapportMensuelResponseDTO getRapportById(Long id) {
         return rapportMapper.toResponseDTO(
@@ -68,13 +83,7 @@ public class RapportMensuelServiceImpl implements RapportMensuelService {
         );
     }
 
-    @Override
-    public RapportMensuelResponseDTO getRapportByMoisAndAnnee(Integer mois, Integer annee) {
-        return rapportMapper.toResponseDTO(
-            rapportRepository.findByMoisAndAnnee(mois, annee)
-                .orElseThrow(() -> new ResourceNotFoundException("Rapport non trouvé pour " + mois + "/" + annee))
-        );
-    }
+
 
     @Override
     public Page<RapportMensuelResponseDTO> getAllRapports(Pageable pageable) {

@@ -18,29 +18,13 @@ public interface CommandeRepository extends JpaRepository<Commande , Long>, JpaS
 
     Long countByStatut(StatutCommande statut);
     
-    Long countByDateBetween(LocalDate debut, LocalDate fin);
-    
+
     Long countByUtilisateur(Utilisateur utilisateur);
     
     Long countByUtilisateurAndStatut(Utilisateur utilisateur, StatutCommande statut);
-    
-    Long countByUtilisateurAndDateBetween(Utilisateur utilisateur, LocalDate debut, LocalDate fin);
-    
-    @Query("SELECT p.nom, SUM(cl.quantite) as total FROM CommandeLine cl " +
-           "JOIN cl.produit p " +
-           "JOIN cl.commande c " +
-           "WHERE c.statut = 'LIVREE' " +
-           "GROUP BY p.id, p.nom " +
-           "ORDER BY total DESC")
-    List<Object[]> findTopProduits();
 
-    @Query("SELECT p.nom, SUM(cl.quantite) as total FROM CommandeLine cl " +
-           "JOIN cl.produit p " +
-           "JOIN cl.commande c " +
-           "WHERE c.utilisateur = :utilisateur AND c.statut = 'LIVREE' " +
-           "GROUP BY p.id, p.nom " +
-           "ORDER BY total DESC")
-    List<Object[]> findTopProduitsByUtilisateur(@Param("utilisateur") Utilisateur utilisateur);
+    
+
 
     @Query("SELECT SUM(cl.quantite * prod.prixVente) FROM CommandeLine cl " +
            "JOIN cl.produit prod " +

@@ -11,7 +11,6 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 
 public interface PaiementRepository extends JpaRepository<Paiement, Long>, JpaSpecificationExecutor<Paiement> {
-    boolean existsByCommandeId(Long commandeId);
     boolean existsByCommandeIdAndStatutIn(Long commandeId, java.util.List<StatutPaiement> statuts);
     
     Long countByStatut(StatutPaiement statut);
@@ -23,9 +22,7 @@ public interface PaiementRepository extends JpaRepository<Paiement, Long>, JpaSp
     Long countByUtilisateurAndStatut(@Param("utilisateur") Utilisateur utilisateur, @Param("statut") StatutPaiement statut);
 
 
-    @Query("SELECT SUM(p.montant) FROM Paiement p WHERE p.commande.utilisateur = :utilisateur AND p.statut = :statut")
-    Double sumMontantByUtilisateurAndStatut(@Param("utilisateur") Utilisateur utilisateur,
-                                             @Param("statut") StatutPaiement statut);
+
 
     @Query("SELECT SUM(p.montant) FROM Paiement p WHERE p.commande.utilisateur = :utilisateur AND p.statut = :statut AND p.date BETWEEN :debut AND :fin")
     Double sumMontantByUtilisateurAndStatutAndDateBetween(@Param("utilisateur") Utilisateur utilisateur,

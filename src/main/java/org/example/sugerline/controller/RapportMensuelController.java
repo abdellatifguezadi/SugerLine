@@ -35,13 +35,6 @@ public class RapportMensuelController {
         return ResponseEntity.ok(rapportService.getRapportById(id));
     }
 
-    @GetMapping("/mois/{mois}/annee/{annee}")
-    @PreAuthorize("hasRole('ADMINISTRATEUR')")
-    public ResponseEntity<RapportMensuelResponseDTO> getRapportByMoisAndAnnee(
-            @PathVariable @Min(1) @Max(12) Integer mois,
-            @PathVariable @Min(2020) Integer annee) {
-        return ResponseEntity.ok(rapportService.getRapportByMoisAndAnnee(mois, annee));
-    }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMINISTRATEUR')")
@@ -56,9 +49,5 @@ public class RapportMensuelController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/test-auth")
-    @PreAuthorize("hasRole('ADMINISTRATEUR')")
-    public ResponseEntity<String> testAuth() {
-        return ResponseEntity.ok("Authentication successful - ADMIN role confirmed");
-    }
+
 }
