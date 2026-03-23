@@ -15,7 +15,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.TextStyle;
 import java.util.*;
@@ -36,50 +35,53 @@ public class StatistiquesServiceImpl implements StatistiquesService {
     public StatistiquesAdminResponseDTO getStatistiquesAdmin() {
         LocalDate now = LocalDate.now();
         LocalDate debutMoisActuel = now.withDayOfMonth(1);
-        LocalDate finMoisActuel = now.withDayOfMonth(now.lengthOfMonth());
         LocalDate debutMoisPrecedent = debutMoisActuel.minusMonths(1);
-        LocalDate finMoisPrecedent = debutMoisActuel.minusDays(1);
 
-        Long totalCommandes = commandeRepository.count();
-        Long totalCommandesEnAttente = commandeRepository.countByStatut(StatutCommande.EN_ATTENTE);
-        Long totalCommandesLivrees = commandeRepository.countByStatut(StatutCommande.LIVREE);
-        Long totalCommandesAnnulees = commandeRepository.countByStatut(StatutCommande.ANNULEE);
+        long totalCommandes = commandeRepository.count();
+        long totalCommandesEnAttente = commandeRepository.countByStatut(StatutCommande.EN_ATTENTE);
+        long totalCommandesLivrees = commandeRepository.countByStatut(StatutCommande.LIVREE);
+        long totalCommandesAnnulees = commandeRepository.countByStatut(StatutCommande.ANNULEE);
 
-        Long totalPaiements = paiementRepository.count();
-        Long totalPaiementsEnAttente = paiementRepository.countByStatut(StatutPaiement.EN_ATTENTE);
-        Long totalPaiementsAcceptes = paiementRepository.countByStatut(StatutPaiement.ACCEPTE);
-        Long totalPaiementsAnnules = paiementRepository.countByStatut(StatutPaiement.ANNULE);
+        long totalPaiements = paiementRepository.count();
+        long totalPaiementsEnAttente = paiementRepository.countByStatut(StatutPaiement.EN_ATTENTE);
+        long totalPaiementsAcceptes = paiementRepository.countByStatut(StatutPaiement.ACCEPTE);
+        long totalPaiementsAnnules = paiementRepository.countByStatut(StatutPaiement.ANNULE);
 
-        Long totalUtilisateurs = utilisateurRepository.count();
-        Long totalProduits = produitRepository.count();
-        Long totalIngredients = ingredientRepository.count();
+        long totalUtilisateurs = utilisateurRepository.count();
+        long totalProduits = produitRepository.count();
+        long totalIngredients = ingredientRepository.count();
 
-        Double revenuTotal = paiementRepository.sumMontantByStatut(StatutPaiement.ACCEPTE);
-        Double revenuMoisActuel = paiementRepository.sumMontantByStatutAndDateBetween(
-                StatutPaiement.ACCEPTE, debutMoisActuel.atStartOfDay(), finMoisActuel.atTime(23, 59, 59));
-        Double revenuMoisPrecedent = paiementRepository.sumMontantByStatutAndDateBetween(
-                StatutPaiement.ACCEPTE, debutMoisPrecedent.atStartOfDay(), finMoisPrecedent.atTime(23, 59, 59));
+        Double revenuTotal = commandeRepository.sumRevenueByStatut(StatutCommande.LIVREE);
+        if (revenuTotal == null) {
+            revenuTotal = 0.00;
+        }
+
+        Double revenuMoisActuel = commandeRepository.sumRevenueByMoisAndAnnee(StatutCommande.LIVREE, debutMoisActuel.getMonthValue(), debutMoisActuel.getYear());
+        if (revenuMoisActuel == null) {
+            revenuMoisActuel = rapportMensuelRepository.findByMoisAndAnnee(debutMoisActuel.getMonthValue(), debutMoisActuel.getYear())
+                    .map(r -> r.getChiffreAffaires() != null ? r.getChiffreAffaires() : 0.0)
+                    .orElse(0.0);
+        }
+
+        Double revenuMoisPrecedent = commandeRepository.sumRevenueByMoisAndAnnee(StatutCommande.LIVREE, debutMoisPrecedent.getMonthValue(), debutMoisPrecedent.getYear());
+        if (revenuMoisPrecedent == null) {
+            revenuMoisPrecedent = rapportMensuelRepository.findByMoisAndAnnee(debutMoisPrecedent.getMonthValue(), debutMoisPrecedent.getYear())
+                    .map(r -> r.getChiffreAffaires() != null ? r.getChiffreAffaires() : 0.0)
+                    .orElse(0.0);
+        }
 
         Double chargesTotal = chargesMensuellesRepository.sumAllCharges();
-        Double beneficeNet = (revenuTotal != null ? revenuTotal : 0.0) - (chargesTotal != null ? chargesTotal : 0.0);
+        Double beneficeNet = revenuTotal - (chargesTotal != null ? chargesTotal : 0.0);
 
         Double tauxCroissanceRevenu = calculerTauxCroissance(revenuMoisPrecedent, revenuMoisActuel);
-        
-        Long commandesMoisActuel = commandeRepository.countByDateBetween(debutMoisActuel, finMoisActuel);
-        Long commandesMoisPrecedent = commandeRepository.countByDateBetween(debutMoisPrecedent, finMoisPrecedent);
-        Double tauxCroissanceCommandes = calculerTauxCroissance(commandesMoisPrecedent.doubleValue(), commandesMoisActuel.doubleValue());
 
-        Double tauxConversionPaiement = totalPaiements > 0 
-            ? (totalPaiementsAcceptes.doubleValue() / totalPaiements.doubleValue()) * 100 
+
+        Double tauxConversionPaiement = totalPaiements > 0
+            ? ((double) totalPaiementsAcceptes / (double) totalPaiements) * 100
             : 0.0;
 
-        List<ChartDataDTO> revenusParMois = getRevenusParMois();
-        List<ChartDataDTO> commandesParMois = getCommandesParMois();
         List<ChartDataDTO> commandesParStatut = getCommandesParStatut();
         List<ChartDataDTO> paiementsParStatut = getPaiementsParStatut();
-        List<ChartDataDTO> topProduits = getTopProduits();
-        List<ChartDataDTO> beneficesParMois = getBeneficesParMois();
-        List<ChartDataDTO> chargesParMois = getChargesParMois();
         List<ChartDataDTO> utilisateursParRole = getUtilisateursParRole();
 
         return StatistiquesAdminResponseDTO.builder()
@@ -95,20 +97,14 @@ public class StatistiquesServiceImpl implements StatistiquesService {
                 .totalProduits(totalProduits)
                 .totalIngredients(totalIngredients)
                 .revenuTotal(revenuTotal != null ? revenuTotal : 0.0)
-                .revenuMoisActuel(revenuMoisActuel != null ? revenuMoisActuel : 0.0)
-                .revenuMoisPrecedent(revenuMoisPrecedent != null ? revenuMoisPrecedent : 0.0)
+                .revenuMoisActuel(revenuMoisActuel)
+                .revenuMoisPrecedent(revenuMoisPrecedent)
                 .beneficeNet(beneficeNet)
                 .chargesTotal(chargesTotal != null ? chargesTotal : 0.0)
-                .revenusParMois(revenusParMois)
-                .commandesParMois(commandesParMois)
                 .commandesParStatut(commandesParStatut)
                 .paiementsParStatut(paiementsParStatut)
-                .topProduits(topProduits)
-                .beneficesParMois(beneficesParMois)
-                .chargesParMois(chargesParMois)
                 .utilisateursParRole(utilisateursParRole)
                 .tauxCroissanceRevenu(tauxCroissanceRevenu)
-                .tauxCroissanceCommandes(tauxCroissanceCommandes)
                 .tauxConversionPaiement(tauxConversionPaiement)
                 .build();
     }
@@ -132,23 +128,16 @@ public class StatistiquesServiceImpl implements StatistiquesService {
         Long totalPaiementsAcceptes = paiementRepository.countByUtilisateurAndStatut(utilisateur, StatutPaiement.ACCEPTE);
         Long totalPaiementsAnnules = paiementRepository.countByUtilisateurAndStatut(utilisateur, StatutPaiement.ANNULE);
 
-        Double montantTotalDepense = paiementRepository.sumMontantByUtilisateurAndStatut(utilisateur, StatutPaiement.ACCEPTE);
         Double montantMoisActuel = paiementRepository.sumMontantByUtilisateurAndStatutAndDateBetween(
                 utilisateur, StatutPaiement.ACCEPTE, debutMoisActuel.atStartOfDay(), finMoisActuel.atTime(23, 59, 59));
         Double montantMoisPrecedent = paiementRepository.sumMontantByUtilisateurAndStatutAndDateBetween(
                 utilisateur, StatutPaiement.ACCEPTE, debutMoisPrecedent.atStartOfDay(), finMoisPrecedent.atTime(23, 59, 59));
-        Double montantEnAttente = paiementRepository.sumMontantByUtilisateurAndStatut(utilisateur, StatutPaiement.EN_ATTENTE);
 
         Double tauxCroissanceDepenses = calculerTauxCroissance(montantMoisPrecedent, montantMoisActuel);
-        Double moyenneParCommande = totalMesCommandes > 0 && montantTotalDepense != null
-                ? montantTotalDepense / totalMesCommandes
-                : 0.0;
 
-        List<ChartDataDTO> mesCommandesParMois = getMesCommandesParMois(utilisateur);
-        List<ChartDataDTO> mesDepensesParMois = getMesDepensesParMois(utilisateur);
+
         List<ChartDataDTO> mesCommandesParStatut = getMesCommandesParStatut(utilisateur);
         List<ChartDataDTO> mesPaiementsParStatut = getMesPaiementsParStatut(utilisateur);
-        List<ChartDataDTO> mesProduitsPreferes = getMesProduitsPreferes(utilisateur);
 
         return StatistiquesUtilisateurResponseDTO.builder()
                 .totalMesCommandes(totalMesCommandes)
@@ -159,59 +148,15 @@ public class StatistiquesServiceImpl implements StatistiquesService {
                 .totalPaiementsEnAttente(totalPaiementsEnAttente)
                 .totalPaiementsAcceptes(totalPaiementsAcceptes)
                 .totalPaiementsAnnules(totalPaiementsAnnules)
-                .montantTotalDepense(montantTotalDepense != null ? montantTotalDepense : 0.0)
                 .montantMoisActuel(montantMoisActuel != null ? montantMoisActuel : 0.0)
                 .montantMoisPrecedent(montantMoisPrecedent != null ? montantMoisPrecedent : 0.0)
-                .montantEnAttente(montantEnAttente != null ? montantEnAttente : 0.0)
-                .mesCommandesParMois(mesCommandesParMois)
-                .mesDepensesParMois(mesDepensesParMois)
                 .mesCommandesParStatut(mesCommandesParStatut)
                 .mesPaiementsParStatut(mesPaiementsParStatut)
-                .mesProduitsPreferes(mesProduitsPreferes)
                 .tauxCroissanceDepenses(tauxCroissanceDepenses)
-                .moyenneParCommande(moyenneParCommande)
                 .build();
     }
 
-    private List<ChartDataDTO> getRevenusParMois() {
-        List<ChartDataDTO> data = new ArrayList<>();
-        LocalDate now = LocalDate.now();
-        
-        for (int i = 11; i >= 0; i--) {
-            YearMonth yearMonth = YearMonth.from(now.minusMonths(i));
-            LocalDate debut = yearMonth.atDay(1);
-            LocalDate fin = yearMonth.atEndOfMonth();
-            
-            Double revenu = paiementRepository.sumMontantByStatutAndDateBetween(
-                    StatutPaiement.ACCEPTE, debut.atStartOfDay(), fin.atTime(23, 59, 59));
-            
-            data.add(ChartDataDTO.builder()
-                    .label(yearMonth.getMonth().getDisplayName(TextStyle.SHORT, Locale.FRENCH) + " " + yearMonth.getYear())
-                    .value(revenu != null ? revenu : 0.0)
-                    .build());
-        }
-        return data;
-    }
 
-    private List<ChartDataDTO> getCommandesParMois() {
-        List<ChartDataDTO> data = new ArrayList<>();
-        LocalDate now = LocalDate.now();
-        
-        for (int i = 11; i >= 0; i--) {
-            YearMonth yearMonth = YearMonth.from(now.minusMonths(i));
-            LocalDate debut = yearMonth.atDay(1);
-            LocalDate fin = yearMonth.atEndOfMonth();
-            
-            Long count = commandeRepository.countByDateBetween(debut, fin);
-            
-            data.add(ChartDataDTO.builder()
-                    .label(yearMonth.getMonth().getDisplayName(TextStyle.SHORT, Locale.FRENCH) + " " + yearMonth.getYear())
-                    .count(count)
-                    .value(count.doubleValue())
-                    .build());
-        }
-        return data;
-    }
 
     private List<ChartDataDTO> getCommandesParStatut() {
         return Arrays.asList(
@@ -247,56 +192,10 @@ public class StatistiquesServiceImpl implements StatistiquesService {
         );
     }
 
-    private List<ChartDataDTO> getTopProduits() {
-        List<Object[]> results = commandeRepository.findTopProduits();
-        
-        List<ChartDataDTO> data = new ArrayList<>();
-        for (int i = 0; i < Math.min(results.size(), 10); i++) {
-            Object[] result = results.get(i);
-            data.add(ChartDataDTO.builder()
-                    .label((String) result[0])
-                    .count(((Number) result[1]).longValue())
-                    .value(((Number) result[1]).doubleValue())
-                    .build());
-        }
-        return data;
-    }
 
-    private List<ChartDataDTO> getBeneficesParMois() {
-        List<ChartDataDTO> data = new ArrayList<>();
-        LocalDate now = LocalDate.now();
-        
-        for (int i = 11; i >= 0; i--) {
-            YearMonth yearMonth = YearMonth.from(now.minusMonths(i));
-            
-            Double benefice = rapportMensuelRepository.findBeneficeByMoisAndAnnee(
-                    yearMonth.getMonthValue(), yearMonth.getYear());
-            
-            data.add(ChartDataDTO.builder()
-                    .label(yearMonth.getMonth().getDisplayName(TextStyle.SHORT, Locale.FRENCH) + " " + yearMonth.getYear())
-                    .value(benefice != null ? benefice : 0.0)
-                    .build());
-        }
-        return data;
-    }
 
-    private List<ChartDataDTO> getChargesParMois() {
-        List<ChartDataDTO> data = new ArrayList<>();
-        LocalDate now = LocalDate.now();
-        
-        for (int i = 11; i >= 0; i--) {
-            YearMonth yearMonth = YearMonth.from(now.minusMonths(i));
-            
-            Double charges = chargesMensuellesRepository.findTotalByMoisAndAnnee(
-                    yearMonth.getMonthValue(), yearMonth.getYear());
-            
-            data.add(ChartDataDTO.builder()
-                    .label(yearMonth.getMonth().getDisplayName(TextStyle.SHORT, Locale.FRENCH) + " " + yearMonth.getYear())
-                    .value(charges != null ? charges : 0.0)
-                    .build());
-        }
-        return data;
-    }
+
+
 
     private List<ChartDataDTO> getUtilisateursParRole() {
         return Arrays.asList(
@@ -319,45 +218,9 @@ public class StatistiquesServiceImpl implements StatistiquesService {
         );
     }
 
-    private List<ChartDataDTO> getMesCommandesParMois(Utilisateur utilisateur) {
-        List<ChartDataDTO> data = new ArrayList<>();
-        LocalDate now = LocalDate.now();
-        
-        for (int i = 11; i >= 0; i--) {
-            YearMonth yearMonth = YearMonth.from(now.minusMonths(i));
-            LocalDate debut = yearMonth.atDay(1);
-            LocalDate fin = yearMonth.atEndOfMonth();
-            
-            Long count = commandeRepository.countByUtilisateurAndDateBetween(utilisateur, debut, fin);
-            
-            data.add(ChartDataDTO.builder()
-                    .label(yearMonth.getMonth().getDisplayName(TextStyle.SHORT, Locale.FRENCH) + " " + yearMonth.getYear())
-                    .count(count)
-                    .value(count.doubleValue())
-                    .build());
-        }
-        return data;
-    }
 
-    private List<ChartDataDTO> getMesDepensesParMois(Utilisateur utilisateur) {
-        List<ChartDataDTO> data = new ArrayList<>();
-        LocalDate now = LocalDate.now();
-        
-        for (int i = 11; i >= 0; i--) {
-            YearMonth yearMonth = YearMonth.from(now.minusMonths(i));
-            LocalDate debut = yearMonth.atDay(1);
-            LocalDate fin = yearMonth.atEndOfMonth();
-            
-            Double montant = paiementRepository.sumMontantByUtilisateurAndStatutAndDateBetween(
-                    utilisateur, StatutPaiement.ACCEPTE, debut.atStartOfDay(), fin.atTime(23, 59, 59));
-            
-            data.add(ChartDataDTO.builder()
-                    .label(yearMonth.getMonth().getDisplayName(TextStyle.SHORT, Locale.FRENCH) + " " + yearMonth.getYear())
-                    .value(montant != null ? montant : 0.0)
-                    .build());
-        }
-        return data;
-    }
+
+
 
     private List<ChartDataDTO> getMesCommandesParStatut(Utilisateur utilisateur) {
         return Arrays.asList(
@@ -393,20 +256,7 @@ public class StatistiquesServiceImpl implements StatistiquesService {
         );
     }
 
-    private List<ChartDataDTO> getMesProduitsPreferes(Utilisateur utilisateur) {
-        List<Object[]> results = commandeRepository.findTopProduitsByUtilisateur(utilisateur);
-        
-        List<ChartDataDTO> data = new ArrayList<>();
-        for (int i = 0; i < Math.min(results.size(), 5); i++) {
-            Object[] result = results.get(i);
-            data.add(ChartDataDTO.builder()
-                    .label((String) result[0])
-                    .count(((Number) result[1]).longValue())
-                    .value(((Number) result[1]).doubleValue())
-                    .build());
-        }
-        return data;
-    }
+
 
     private Double calculerTauxCroissance(Double ancienneValeur, Double nouvelleValeur) {
         if (ancienneValeur == null || ancienneValeur == 0.0) {

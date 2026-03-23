@@ -13,16 +13,16 @@ import org.example.sugerline.exception.ResourceNotFoundException;
 import org.example.sugerline.mapper.ChargesMensuellesMapper;
 import org.example.sugerline.repository.ChargesMensuellesRepository;
 import org.example.sugerline.repository.CommandeRepository;
+import org.example.sugerline.repository.RapportMensuelRepository;
 import org.example.sugerline.repository.UtilisateurRepository;
 import org.example.sugerline.service.ChargesMensuellesService;
-import org.example.sugerline.specification.SpecificationBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -33,10 +33,15 @@ public class ChargesMensuellesServiceImpl implements ChargesMensuellesService {
     private final ChargesMensuellesMapper chargesMapper;
     private final UtilisateurRepository utilisateurRepository;
     private final CommandeRepository commandeRepository;
+    private final RapportMensuelRepository rapportMensuelRepository;
 
     @Override
     @Transactional
     public ChargesMensuellesResponseDTO createCharges(ChargesMensuellesRequestDTO dto) {
+        if (isFutureMonthYear(dto.getMois(), dto.getAnnee())) {
+            throw new InvalidOperationException("Impossible de créer des charges pour une date future : " + dto.getMois() + "/" + dto.getAnnee());
+        }
+
         if (chargesRepository.existsByMoisAndAnnee(dto.getMois(), dto.getAnnee())) {
             throw new InvalidOperationException(
                 "Des charges existent déjà pour le mois " + dto.getMois() + "/" + dto.getAnnee()
@@ -61,6 +66,11 @@ public class ChargesMensuellesServiceImpl implements ChargesMensuellesService {
         if (dto.getMois() != null || dto.getAnnee() != null) {
             Integer newMois = dto.getMois() != null ? dto.getMois() : charges.getMois();
             Integer newAnnee = dto.getAnnee() != null ? dto.getAnnee() : charges.getAnnee();
+
+            if (isFutureMonthYear(newMois, newAnnee)) {
+                throw new InvalidOperationException("Impossible d'assigner des charges à une date future : " + newMois + "/" + newAnnee);
+            }
+
             if ((!newMois.equals(charges.getMois()) || !newAnnee.equals(charges.getAnnee()))
                     && chargesRepository.existsByMoisAndAnnee(newMois, newAnnee)) {
                 throw new InvalidOperationException(
@@ -89,16 +99,22 @@ public class ChargesMensuellesServiceImpl implements ChargesMensuellesService {
     @Override
     @Transactional
     public void deleteCharges(Long id) {
-        if (!chargesRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Charges non trouvées avec l'ID: " + id);
+        ChargesMensuelles charges = chargesRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Charges non trouvées avec l'ID: " + id));
+
+        if (rapportMensuelRepository.existsByChargesId(id)) {
+            throw new InvalidOperationException(
+                "Impossible de supprimer ces charges car elles sont utilisées dans un rapport mensuel (" +
+                charges.getMois() + "/" + charges.getAnnee() + ")."
+            );
         }
-        chargesRepository.deleteById(id);
+
+        chargesRepository.delete(charges);
     }
 
     @Override
-    public Page<ChargesMensuellesResponseDTO> getAllCharges(Integer mois, Integer annee, Double minTotal, Double maxTotal, String utilisateurUsername, Pageable pageable) {
-        Specification<ChargesMensuelles> spec = SpecificationBuilder.chargesSpec(mois, annee, minTotal, maxTotal, utilisateurUsername);
-        return chargesRepository.findAll(spec, pageable).map(chargesMapper::toResponseDTO);
+    public Page<ChargesMensuellesResponseDTO> getAllCharges(Pageable pageable) {
+        return chargesRepository.findAll(pageable).map(chargesMapper::toResponseDTO);
     }
 
     private Utilisateur getCurrentUser() {
@@ -122,5 +138,15 @@ public class ChargesMensuellesServiceImpl implements ChargesMensuellesService {
 
     private Double calculerTotal(Double chargesVariables, Double electricite, Double eau, Double salaires, Double loyer, Double autres) {
         return chargesVariables + electricite + eau + salaires + loyer + (autres != null ? autres : 0.0);
+    }
+
+    private boolean isFutureMonthYear(Integer mois, Integer annee) {
+        if (mois == null || annee == null) return false;
+        LocalDate now = LocalDate.now();
+        int currentYear = now.getYear();
+        int currentMonth = now.getMonthValue();
+        if (annee > currentYear) return true;
+        if (annee.equals(currentYear) && mois > currentMonth) return true;
+        return false;
     }
 }

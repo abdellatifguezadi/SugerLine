@@ -12,9 +12,9 @@ public class RapportMensuelResponseDTO {
     private Integer mois;
     private Integer annee;
     private Double chiffreAffaires;
-    private Double coutProduction;
-    private Double chargesFixes;
     private Double coutTotal;
     private Double benefice;
     private Double tauxRentabilite;
+
+    private ChargesMensuellesResponseDTO charges;
 }

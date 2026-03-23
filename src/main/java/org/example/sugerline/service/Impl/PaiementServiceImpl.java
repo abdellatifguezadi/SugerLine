@@ -64,7 +64,6 @@ public class PaiementServiceImpl implements PaiementService {
 
         Paiement paiement = paiementMapper.toEntity(dto);
         paiement.setCommande(commande);
-        paiement.setUtilisateur(commande.getUtilisateur());
 
         Paiement saved = paiementRepository.save(paiement);
         return paiementMapper.toResponseDTO(saved);

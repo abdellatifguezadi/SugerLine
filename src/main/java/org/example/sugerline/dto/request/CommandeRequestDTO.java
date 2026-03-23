@@ -1,9 +1,8 @@
 package org.example.sugerline.dto.request;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,6 +16,7 @@ import java.util.List;
 public class CommandeRequestDTO {
 
     @NotNull(message = "La date est obligatoire")
+    @FutureOrPresent(message = "La date doit être aujourd'hui ou une date future")
     private LocalDate date;
 
     private Long utilisateurId;

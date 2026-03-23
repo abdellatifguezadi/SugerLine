@@ -22,6 +22,8 @@ public class ProduitRequestDTO {
     @NotNull(message = "Le prix de vente est obligatoire")
     private Double prixVente;
 
+    @NotNull(message = "Les ingrédients sont obligatoires")
+    @Size(min = 1, message = "Le produit doit contenir au moins un ingrédient")
     @Valid
     private List<IngredientProduitRequestDTO> ingredientProduits;
 }

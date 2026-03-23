@@ -11,5 +11,5 @@ public interface ChargesMensuellesService {
     ChargesMensuellesResponseDTO updateCharges(Long id, ChargesMensuellesUpdateDTO dto);
     ChargesMensuellesResponseDTO getChargesById(Long id);
     void deleteCharges(Long id);
-    Page<ChargesMensuellesResponseDTO> getAllCharges(Integer mois, Integer annee, Double minTotal, Double maxTotal, String utilisateurUsername, Pageable pageable);
+    Page<ChargesMensuellesResponseDTO> getAllCharges(Pageable pageable);
 }

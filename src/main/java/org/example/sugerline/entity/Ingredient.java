@@ -17,7 +17,6 @@ public class Ingredient {
 
     private String type;
     private String nom;
-    private String quantite;
     private String unite;
     private Double prixUnitaire;
 

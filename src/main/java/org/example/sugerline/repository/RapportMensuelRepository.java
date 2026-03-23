@@ -13,6 +13,8 @@ public interface RapportMensuelRepository extends JpaRepository<RapportMensuel, 
     
     boolean existsByMoisAndAnnee(Integer mois, Integer annee);
     
-    @Query("SELECT r.benefice FROM RapportMensuel r WHERE r.mois = :mois AND r.annee = :annee")
-    Double findBeneficeByMoisAndAnnee(@Param("mois") Integer mois, @Param("annee") Integer annee);
+
+    boolean existsByChargesId(Long chargesId);
+
+
 }

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.sugerline.dto.request.LoginRequestDTO;
 import org.example.sugerline.dto.request.RegisterRequestDTO;
 import org.example.sugerline.dto.response.AuthResponseDTO;
+import org.example.sugerline.dto.response.UtilisateurResponseDTO;
 import org.example.sugerline.entity.Utilisateur;
 import org.example.sugerline.exception.AuthenticationException;
 import org.example.sugerline.exception.ResourceNotFoundException;
@@ -13,6 +14,8 @@ import org.example.sugerline.mapper.UtilisateurMapper;
 import org.example.sugerline.repository.UtilisateurRepository;
 import org.example.sugerline.security.JwtUtil;
 import org.example.sugerline.service.IAuthService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,7 +32,7 @@ public class AuthServiceImpl implements IAuthService {
     private final UtilisateurMapper utilisateurMapper;
 
     @Override
-    public AuthResponseDTO createUser(RegisterRequestDTO registerRequest, HttpServletResponse response) {
+    public AuthResponseDTO createUser(RegisterRequestDTO registerRequest) {
         if (utilisateurRepository.existsByUsername(registerRequest.getUsername())) {
             throw new ResourceNotFoundException("Username déjà utilisé");
         }
@@ -42,9 +45,6 @@ public class AuthServiceImpl implements IAuthService {
         utilisateur.setMotDePasse(passwordEncoder.encode(registerRequest.getMotDePasse()));
 
         Utilisateur savedUser = utilisateurRepository.save(utilisateur);
-
-        String token = jwtUtil.generateToken(savedUser.getUsername(), savedUser.getRole().name());
-        addTokenToCookie(response, token);
 
         return utilisateurMapper.toAuthResponseDTO(savedUser);
     }
@@ -78,5 +78,18 @@ public class AuthServiceImpl implements IAuthService {
         cookie.setPath("/");
         cookie.setMaxAge(24 * 60 * 60);
         response.addCookie(cookie);
+    }
+
+    @Override
+    public AuthResponseDTO getCurrentUser(String username) {
+        Utilisateur utilisateur = utilisateurRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
+        return utilisateurMapper.toAuthResponseDTO(utilisateur);
+    }
+
+    @Override
+    public Page<AuthResponseDTO> getAllUsers(Pageable pageable) {
+        Page<Utilisateur> users = utilisateurRepository.findAll(pageable);
+        return users.map(utilisateurMapper::toAuthResponseDTO);
     }
 }

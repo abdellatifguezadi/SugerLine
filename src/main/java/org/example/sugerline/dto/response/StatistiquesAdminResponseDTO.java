@@ -32,17 +32,11 @@ public class StatistiquesAdminResponseDTO {
     private Double revenuMoisPrecedent;
     private Double beneficeNet;
     private Double chargesTotal;
-    
-    private List<ChartDataDTO> revenusParMois;
-    private List<ChartDataDTO> commandesParMois;
+
     private List<ChartDataDTO> commandesParStatut;
     private List<ChartDataDTO> paiementsParStatut;
-    private List<ChartDataDTO> topProduits;
-    private List<ChartDataDTO> beneficesParMois;
-    private List<ChartDataDTO> chargesParMois;
     private List<ChartDataDTO> utilisateursParRole;
     
     private Double tauxCroissanceRevenu;
-    private Double tauxCroissanceCommandes;
     private Double tauxConversionPaiement;
 }
