@@ -1,6 +1,7 @@
 package org.example.sugerline.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.sugerline.dto.request.IngredientProduitRequestDTO;
 import org.example.sugerline.dto.request.ProduitRequestDTO;
 import org.example.sugerline.dto.request.ProduitUpdateDto;
 import org.example.sugerline.dto.response.ProduitResponseDTO;
@@ -54,6 +55,12 @@ public class ProduitControllerIntegrationTest {
         produitRequestDTO = new ProduitRequestDTO();
         produitRequestDTO.setNom("Test Produit");
         produitRequestDTO.setPrixVente(10.0);
+
+        IngredientProduitRequestDTO ingredient = new IngredientProduitRequestDTO();
+        ingredient.setQuantite(1.0);
+        ingredient.setIngredientId(1L);
+        produitRequestDTO.setIngredientProduits(Collections.singletonList(ingredient));
+
         produitUpdateDto = new ProduitUpdateDto();
         produitUpdateDto.setNom("Updated Produit");
     }

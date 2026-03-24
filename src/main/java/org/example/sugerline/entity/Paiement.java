@@ -24,7 +24,7 @@ public class Paiement {
     @Enumerated(EnumType.STRING)
     private StatutPaiement statut = StatutPaiement.EN_ATTENTE;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "commande_id")
     private Commande commande;
     

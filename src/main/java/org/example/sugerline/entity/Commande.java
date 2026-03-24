@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.example.sugerline.enums.StatutCommande;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -30,8 +31,8 @@ public class Commande {
     @OneToMany(mappedBy = "commande", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommandeLine> commandeLines;
     
-    @OneToOne(mappedBy = "commande", cascade = CascadeType.ALL)
-    private Paiement paiement;
+    @OneToMany(mappedBy = "commande", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Paiement> paiements;
 
     private Double montantAvantReduction;
     private Double pourcentageReduction;
