@@ -3,7 +3,7 @@ name: tricol springboot ci
 on:
   push:
     branches:
-      - "**" # Triggers on push to any branch
+      - "**"
 
 jobs:
   build-and-push:
