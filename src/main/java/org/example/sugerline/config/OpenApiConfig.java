@@ -20,16 +20,14 @@ import org.springframework.context.annotation.Configuration;
                 @Server(url = "http://localhost:8080", description = "Serveur de développement local")
         },
         security = {
-                @SecurityRequirement(name = "bearerAuth")
+                @SecurityRequirement(name = "cookieAuth")
         }
 )
 @SecurityScheme(
-        name = "bearerAuth",
-        description = "JWT auth description",
-        scheme = "bearer",
-        type = SecuritySchemeType.HTTP,
-        bearerFormat = "JWT",
-        in = SecuritySchemeIn.COOKIE
+        name = "cookieAuth",
+        type = SecuritySchemeType.APIKEY,
+        in = SecuritySchemeIn.COOKIE,
+        paramName = "token"
 )
 public class OpenApiConfig {
 }

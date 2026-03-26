@@ -219,8 +219,8 @@ public class CommandeServiceImpl implements CommandeService {
     private double getReductionByRole(String role) {
         return switch (role) {
             case "LIVREUR" -> 10.0;
-            case "MAGASIN" -> 15.0;
-            case "CAISSIER" -> 5.0;
+            case "MAGASIN" -> 5.0;
+            case "CAISSIER" -> 0.0;
             default -> 0.0;
         };
     }
