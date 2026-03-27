@@ -1,12 +1,10 @@
 package org.example.sugerline.service.Impl;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.sugerline.dto.request.LoginRequestDTO;
 import org.example.sugerline.dto.request.RegisterRequestDTO;
 import org.example.sugerline.dto.response.AuthResponseDTO;
-import org.example.sugerline.dto.response.UtilisateurResponseDTO;
 import org.example.sugerline.entity.Utilisateur;
 import org.example.sugerline.exception.AuthenticationException;
 import org.example.sugerline.exception.ResourceNotFoundException;
@@ -72,12 +70,9 @@ public class AuthServiceImpl implements IAuthService {
     }
 
     private void addTokenToCookie(HttpServletResponse response, String token) {
-        Cookie cookie = new Cookie("token", token);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(24 * 60 * 60);
-        response.addCookie(cookie);
+        String cookieValue = String.format("token=%s; Path=/; HttpOnly; Max-Age=%d; SameSite=Lax",
+                token, 24 * 60 * 60);
+        response.setHeader("Set-Cookie", cookieValue);
     }
 
     @Override
