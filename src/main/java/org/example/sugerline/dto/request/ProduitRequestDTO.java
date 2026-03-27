@@ -1,6 +1,7 @@
 package org.example.sugerline.dto.request;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -20,6 +21,7 @@ public class ProduitRequestDTO {
     private String nom;
 
     @NotNull(message = "Le prix de vente est obligatoire")
+    @Min(value = 1, message = "Le prix doit etre positive")
     private Double prixVente;
 
     @NotNull(message = "Les ingrédients sont obligatoires")

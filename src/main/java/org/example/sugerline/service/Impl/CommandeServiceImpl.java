@@ -138,6 +138,7 @@ public class CommandeServiceImpl implements CommandeService {
             throw new InvalidOperationException("Impossible de modifier une commande annulée");
         }
 
+
         commandeMapper.updateEntityFromDTO(commandeUpdateDTO, commande);
 
         if (commandeUpdateDTO.getCommandeLines() != null && !commandeUpdateDTO.getCommandeLines().isEmpty()) {
@@ -195,6 +196,11 @@ public class CommandeServiceImpl implements CommandeService {
 
         if (commande.getStatut() == StatutCommande.ANNULEE) {
             throw new InvalidOperationException("Impossible de livrer une commande annulée");
+        }
+
+
+        if (!commande.getDate().isEqual(LocalDate.now())) {
+            throw new InvalidOperationException("Impossible de livrer une commande qui n'est pas pour aujourd'hui");
         }
 
         commande.setStatut(StatutCommande.LIVREE);
